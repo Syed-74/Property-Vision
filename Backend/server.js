@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
 const propertyRoutes = require("./routes/property.routes");
+const tenantRoutes = require("./routes/tenant.routes");
+
 
 
 dotenv.config();
@@ -31,6 +33,8 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/auth/v1/admin", authRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/tenants', require('./routes/tenant.routes'));
+
 
 // Global Error Handler
 // app.use((err, req, res, next) => {

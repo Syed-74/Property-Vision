@@ -30,8 +30,8 @@ const authSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin"],
-      default: "admin",
+      enum: ["admin", "subadmin"],
+      default: "subadmin",
     },
   },
   { timestamps: true }

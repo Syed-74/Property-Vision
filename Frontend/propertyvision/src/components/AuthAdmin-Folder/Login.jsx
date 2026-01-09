@@ -33,7 +33,7 @@ const Login = ({ onClose }) => {
 
       onClose();
 
-      if (user.role === "admin") {
+      if (user.role === "admin" || user.role === "subadmin") {
         navigate("/admin/dashboard");
       } else {
         navigate("/");

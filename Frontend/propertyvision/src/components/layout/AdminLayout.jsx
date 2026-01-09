@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import {
   Menu,
@@ -15,15 +15,21 @@ import {
 const AdminLayout = () => {
   const [open, setOpen] = useState(false);
 
+  useEffect( async ()=>{
+    const getRole = await localStorage.getItem('role')
+    console.log(getRole)
+  },[])
+
+
   const menu = [
-    { name: "Dashboard", icon: Home, path: "dashboard" },
-    { name: "Accounts Management", icon: Home, path: "accounts-management" },
-    { name: "Properties", icon: Building2, path: "properties" },
-    { name: "Tenants", icon: Users, path: "tenants" },
-    { name: "Units / Flats", icon: Layers, path: "units" },
-    { name: "Payments", icon: CreditCard, path: "payments" },
-    { name: "Reports", icon: BarChart3, path: "reports" },
-    { name: "Settings", icon: Settings, path: "settings" },
+    { name: "Dashboard", icon: Home, path: "dashboard", requiresAdmin: role === 'admin' ? true : false },
+    { name: "Accounts Management", icon: Home, path: "accounts-management", requiresAdmin: true },
+    { name: "Properties", icon: Building2, path: "properties", requiresAdmin: true },
+    { name: "Tenants", icon: Users, path: "tenants", requiresAdmin: true },
+    { name: "Units / Flats", icon: Layers, path: "units", requiresAdmin: true },
+    { name: "Payments", icon: CreditCard, path: "payments", requiresAdmin: true },
+    { name: "Reports", icon: BarChart3, path: "reports", requiresAdmin: true },
+    { name: "Settings", icon: Settings, path: "settings", requiresAdmin: true },
   ];
 
   return (
@@ -59,13 +65,12 @@ const AdminLayout = () => {
               key={item.name}
               to={item.path}
               end
-              onClick={() => setOpen(false)} // 👈 auto close on mobile
+              onClick={() => setOpen(false)} // 👈 auto close on mobile hello
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition
-                ${
-                  isActive
-                    ? "bg-indigo-600 text-white"
-                    : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                ${isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
                 }`
               }
             >

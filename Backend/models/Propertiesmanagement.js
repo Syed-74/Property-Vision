@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const propertiesManagementSchema = new mongoose.Schema(
   {
@@ -20,7 +20,40 @@ const propertiesManagementSchema = new mongoose.Schema(
 
     propertyType: {
       type: String,
-      enum: ['House', 'Flat', 'Land', 'Commercial', 'Residential', 'Apartment', 'Townhouse', 'Condo', 'Villa', 'Farmhouse', 'Penthouse', 'Studio', 'Loft', 'Warehouse', 'Office', 'Shop', 'Retail Space', 'Industrial Space', 'Plot', 'Agricultural Land', 'Residential Plot', 'Commercial Plot', 'Mixed Used Space', 'Hotel', 'Resort', 'Luxury Villa', 'Luxury Apartment', 'Luxury Condo', 'Luxury Townhouse', 'Luxury House', 'Luxury Flat', 'Other' ],
+      enum: [
+        "House",
+        "Flat",
+        "Land",
+        "Commercial",
+        "Residential",
+        "Apartment",
+        "Townhouse",
+        "Condo",
+        "Villa",
+        "Farmhouse",
+        "Penthouse",
+        "Studio",
+        "Loft",
+        "Warehouse",
+        "Office",
+        "Shop",
+        "Retail Space",
+        "Industrial Space",
+        "Plot",
+        "Agricultural Land",
+        "Residential Plot",
+        "Commercial Plot",
+        "Mixed Used Space",
+        "Hotel",
+        "Resort",
+        "Luxury Villa",
+        "Luxury Apartment",
+        "Luxury Condo",
+        "Luxury Townhouse",
+        "Luxury House",
+        "Luxury Flat",
+        "Other",
+      ],
       required: true,
     },
 
@@ -31,8 +64,8 @@ const propertiesManagementSchema = new mongoose.Schema(
 
     ownershipType: {
       type: String,
-      enum: ['Owned', 'Leased', 'Managed', 'Other'],
-      default: 'Owned',
+      enum: ["Owned", "Leased", "Managed", "Other"],
+      default: "Owned",
     },
 
     /* =========================
@@ -72,12 +105,12 @@ const propertiesManagementSchema = new mongoose.Schema(
         documentType: {
           type: String,
           enum: [
-            'Sale Deed',
-            'Tax Receipt',
-            'Registration',
-            'NOC',
-            'Agreement',
-            'Other',
+            "Sale Deed",
+            "Tax Receipt",
+            "Registration",
+            "NOC",
+            "Agreement",
+            "Other",
           ],
         },
         documentUrl: { type: String, required: true },
@@ -85,8 +118,8 @@ const propertiesManagementSchema = new mongoose.Schema(
         expiryDate: { type: Date },
         verificationStatus: {
           type: String,
-          enum: ['Pending', 'Verified', 'Rejected'],
-          default: 'Pending',
+          enum: ["Pending", "Verified", "Rejected"],
+          default: "Pending",
         },
       },
     ],
@@ -96,26 +129,21 @@ const propertiesManagementSchema = new mongoose.Schema(
     ========================== */
     propertyStatus: {
       type: String,
-      enum: [
-        'Active',
-        'Inactive',
-        'Sold',
-        'Rented',
-        'Under Maintenance',
-      ],
-      default: 'Active',
+      enum: ["Active", "Inactive", "Sold", "Rented", "Under Maintenance"],
+      default: "Active",
     },
+    propertyUrl: { type: String, required: true },
 
     availabilityStatus: {
       type: String,
-      enum: ['Available', 'Not Available'],
-      default: 'Available',
+      enum: ["Available", "Not Available"],
+      default: "Available",
     },
 
     approvalStatus: {
       type: String,
-      enum: ['Pending', 'Approved', 'Rejected'],
-      default: 'Pending',
+      enum: ["Pending", "Approved", "Rejected"],
+      default: "Pending",
     },
 
     /* =========================
@@ -124,7 +152,7 @@ const propertiesManagementSchema = new mongoose.Schema(
     owner: {
       ownerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
       },
       ownerName: { type: String },
       contactNumber: { type: String },
@@ -133,8 +161,8 @@ const propertiesManagementSchema = new mongoose.Schema(
 
     managedBy: {
       type: String,
-      enum: ['Admin', 'Staff', 'Agency'],
-      default: 'Admin',
+      enum: ["Admin", "Staff", "Agency"],
+      default: "Admin",
     },
 
     /* =========================
@@ -145,7 +173,7 @@ const propertiesManagementSchema = new mongoose.Schema(
       currentMarketValue: { type: Number },
       propertyTaxAmount: { type: Number },
       maintenanceCost: { type: Number },
-      currency: { type: String, default: 'INR' },
+      currency: { type: String, default: "INR" },
     },
 
     /* =========================
@@ -153,12 +181,12 @@ const propertiesManagementSchema = new mongoose.Schema(
     ========================== */
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
 
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
 
     remarks: {
@@ -169,6 +197,14 @@ const propertiesManagementSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "admin", // Admin reference
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "admin", // Admin reference
+    },
   },
   {
     timestamps: true, // adds createdAt & updatedAt automatically
@@ -177,5 +213,4 @@ const propertiesManagementSchema = new mongoose.Schema(
 
 module.exports =
   mongoose.models.PropertiesManagement ||
-  mongoose.model('PropertiesManagement', propertiesManagementSchema);
-
+  mongoose.model("PropertiesManagement", propertiesManagementSchema);

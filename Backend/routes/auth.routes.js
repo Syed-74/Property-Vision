@@ -24,7 +24,7 @@ router.delete("/admin/:id", protect, authorize("admin"), deleteAdmin);
 router.put(
   "/change-password",
   protect,
-  authorize("admin"),
+  authorize("admin", "subadmin"),
   changePassword
 );
 
