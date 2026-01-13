@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import {
   Menu,
@@ -10,24 +10,37 @@ import {
   CreditCard,
   BarChart3,
   Settings,
+  Outdent,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "../../AuthContext/AuthContext";
 
 const AdminLayout = () => {
   const [open, setOpen] = useState(false);
-
-  useEffect( async ()=>{
-    const getRole = await localStorage.getItem('role')
-    console.log(getRole)
-  },[])
-
+  const { user, logout } = useAuth();
 
   const menu = [
-    { name: "Dashboard", icon: Home, path: "dashboard", requiresAdmin: role === 'admin' ? true : false },
-    { name: "Accounts Management", icon: Home, path: "accounts-management", requiresAdmin: true },
-    { name: "Properties", icon: Building2, path: "properties", requiresAdmin: true },
+    { name: "Dashboard", icon: Home, path: "dashboard", requiresAdmin: true },
+    {
+      name: "Accounts Management",
+      icon: Home,
+      path: "accounts-management",
+      requiresAdmin: user?.role === "subadmin" ? false : true,
+    },
+    {
+      name: "Properties",
+      icon: Building2,
+      path: "properties",
+      requiresAdmin: true,
+    },
     { name: "Tenants", icon: Users, path: "tenants", requiresAdmin: true },
     { name: "Units / Flats", icon: Layers, path: "units", requiresAdmin: true },
-    { name: "Payments", icon: CreditCard, path: "payments", requiresAdmin: true },
+    {
+      name: "Payments",
+      icon: CreditCard,
+      path: "payments",
+      requiresAdmin: true,
+    },
     { name: "Reports", icon: BarChart3, path: "reports", requiresAdmin: true },
     { name: "Settings", icon: Settings, path: "settings", requiresAdmin: true },
   ];
@@ -60,17 +73,19 @@ const AdminLayout = () => {
         </div>
 
         <nav className="p-4 space-y-1">
-          {menu.map((item) => (
+          {menu.filter((act)=>act.requiresAdmin).map((item) => (
             <NavLink
               key={item.name}
               to={item.path}
               end
+
               onClick={() => setOpen(false)} // 👈 auto close on mobile hello
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition
-                ${isActive
-                  ? "bg-indigo-600 text-white"
-                  : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                ${
+                  isActive
+                    ? "bg-indigo-600 text-white"
+                    : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
                 }`
               }
             >
@@ -78,6 +93,12 @@ const AdminLayout = () => {
               <span>{item.name}</span>
             </NavLink>
           ))}
+          <div className="flex item-center justify-start px-4 py-3 gap-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg cursor-pointer">
+            <LogOut size={20} />
+            <button className="text-sm font-medium" onClick={logout}>
+              Logout
+            </button>
+          </div>
         </nav>
       </aside>
 
@@ -95,9 +116,7 @@ const AdminLayout = () => {
           <h2 className="text-base sm:text-lg font-semibold">Admin Panel</h2>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:block text-sm text-gray-600">
-              Admin
-            </span>
+            <span className="hidden sm:block text-sm text-gray-600">Admin</span>
             <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">
               A
             </div>

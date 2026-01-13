@@ -29,6 +29,7 @@ exports.registerUser = async (req, res) => {
       password: hashedPassword,
       mobileNumber,
       address,
+      role: "subadmin",
     });
 
     res.status(201).json({
@@ -62,8 +63,12 @@ exports.loginUser = async (req, res) => {
 
 // GET ALL ADMINS
 exports.getAllAdmins = async (req, res) => {
-  const admins = await Auth.find().select("-password");
-  res.status(200).json(admins);
+  try {
+    const admins = await Auth.find().select("-password");
+    res.status(200).json(admins);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 // UPDATE ADMIN
@@ -80,7 +85,6 @@ exports.deleteAdmin = async (req, res) => {
   await Auth.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Admin deleted successfully" });
 };
-
 
 // CHANGE PASSWORD
 exports.changePassword = async (req, res) => {
@@ -107,5 +111,25 @@ exports.changePassword = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getUserProfile = async (req, res) => {
+  const id = req?.user || req?.user?._id;
+  if (!id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "User ID is required" });
+  }
+  try {
+    const user = await Auth.findById(id).select("-password");
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

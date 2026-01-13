@@ -5,7 +5,8 @@ const {
   getAllAdmins,
   updateAdmin,
   deleteAdmin,
-  changePassword
+  changePassword,
+  getUserProfile
 } = require("../controllers/auth.controllers");
 const { protect, authorize } = require("../middlewares/authMiddleware");
 
@@ -20,7 +21,7 @@ router.post("/login", loginUser);
 router.get("/admins", protect, authorize("admin"), getAllAdmins);
 router.put("/admin/:id", protect, authorize("admin"), updateAdmin);
 router.delete("/admin/:id", protect, authorize("admin"), deleteAdmin);
-
+router.get("/profile", protect, getUserProfile);
 router.put(
   "/change-password",
   protect,

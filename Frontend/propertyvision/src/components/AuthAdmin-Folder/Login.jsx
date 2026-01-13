@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../../AuthContext/AuthContext";
 
-const API = "http://localhost:5000";
+
 
 const Login = ({ onClose }) => {
   const [email, setEmail] = useState("");
@@ -12,7 +13,7 @@ const Login = ({ onClose }) => {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const {user}=useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -21,7 +22,7 @@ const Login = ({ onClose }) => {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API}/auth/v1/admin/login`, {
+      const res = await axios.post('/login', {
         email,
         password,
       });
@@ -29,7 +30,6 @@ const Login = ({ onClose }) => {
       const { token, user } = res.data;
 
       localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role);
 
       onClose();
 

@@ -132,7 +132,7 @@ const propertiesManagementSchema = new mongoose.Schema(
       enum: ["Active", "Inactive", "Sold", "Rented", "Under Maintenance"],
       default: "Active",
     },
-    propertyUrl: { type: String, required: true },
+    propertyimgUrl: { type: String, required: true },
 
     availabilityStatus: {
       type: String,

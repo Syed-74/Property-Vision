@@ -15,6 +15,7 @@ const propertyTypes = [
   "Luxury House", "Luxury Flat", "Other"
 ];
 
+
 const initialForm = {
   propertyName: "",
   propertyType: "House",
@@ -42,6 +43,7 @@ const initialForm = {
     currency: "INR",
   },
 };
+
 
 /* =========================
    VALIDATION

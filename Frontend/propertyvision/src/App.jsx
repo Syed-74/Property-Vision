@@ -1,10 +1,10 @@
 import React from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 
-import Content from "../../propertyvision/src/components/pages/Content";
-import Login from "../../propertyvision/src/components/AuthAdmin-Folder/Login";
+import Content from "./components/pages/Content";
+import Login from "./components/AuthAdmin-Folder/Login";
 
-import AdminLayout from "../src/components/layout/AdminLayout";
+import AdminLayout from "./components/layout/AdminLayout";
 import Dashboard from "./components/MenuPages/Dashboard";
 import Properties from "./components/MenuPages/Properties";
 import Tenants from "./components/MenuPages/Tenants";
@@ -16,7 +16,7 @@ import AccountManagement from "./components/MenuPages/AccountManagement";
 
 function App() {
   return (
-    <BrowserRouter>
+  
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Content />} />
@@ -34,7 +34,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+  
   );
 }
 
