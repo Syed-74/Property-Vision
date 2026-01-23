@@ -1,5 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+
+const upload = require("../middlewares/upload");
 
 const {
   createProperty,
@@ -7,72 +9,30 @@ const {
   getPropertyById,
   updateProperty,
   deleteProperty,
-} = require('../controllers/property.controller');
+} = require("../controllers/property.controller");
 
-// (Optional) Auth & role middlewares
-// const authMiddleware = require('../middlewares/auth.middleware');
-// const roleMiddleware = require('../middlewares/role.middleware');
+// const {
+//   createUnit,
+//   getUnitsByProperty,
+//   updateUnit,
+//   deleteUnit,
+// } = require("../controllers/unit.controller");
 
 /* =========================
-   PROPERTY ROUTES
+   PROPERTY CRUD
 ========================= */
+router.post("/", upload.single("propertyimgUrl"), createProperty);
+router.get("/", getAllProperties);
+router.get("/:id", getPropertyById);
+router.put("/:id", upload.single("propertyimgUrl"), updateProperty);
+router.delete("/:id", deleteProperty);
 
-/**
- * @route   POST /api/properties
- * @desc    Create a new property
- * @access  Admin / Staff
- */
-router.post(
-  '/',
-  // authMiddleware,
-  // roleMiddleware(['Admin', 'Staff']),
-  createProperty
-);
-
-/**
- * @route   GET /api/properties
- * @desc    Get all properties (with filters)
- * @access  Public / Protected
- */
-router.get(
-  '/',
-  // authMiddleware,
-  getAllProperties
-);
-
-/**
- * @route   GET /api/properties/:id
- * @desc    Get property by ID
- * @access  Public / Protected
- */
-router.get(
-  '/:id',
-  // authMiddleware,
-  getPropertyById
-);
-
-/**
- * @route   PUT /api/properties/:id
- * @desc    Update property
- * @access  Admin / Staff
- */
-router.put(
-  '/:id',
-  // authMiddleware,
-  // roleMiddleware(['Admin', 'Staff']),
-  updateProperty
-);
-
-/**
- * @route   DELETE /api/properties/:id
- * @desc    Soft delete property
- * @access  Admin only
- */
-router.delete(
-  '/:id',
-  // authMiddleware,
-  // roleMiddleware(['Admin']),
-  deleteProperty
-);
+/* =========================
+   PROPERTY → UNITS CRUD
+========================= */
+// router.post("/:propertyId/units", createUnit);          // CREATE
+// router.get("/:propertyId/units", getUnitsByProperty);   // READ
+// router.put("/:propertyId/units/:unitId", updateUnit);   // UPDATE
+// router.delete("/:propertyId/units/:unitId", deleteUnit);// DELETE
 
 module.exports = router;

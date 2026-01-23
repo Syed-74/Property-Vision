@@ -21,28 +21,31 @@ const AdminLayout = () => {
 
   const menu = [
     { name: "Dashboard", icon: Home, path: "dashboard", requiresAdmin: true },
-    {
-      name: "Accounts Management",
-      icon: Home,
-      path: "accounts-management",
-      requiresAdmin: user?.role === "subadmin" ? false : true,
-    },
+    
     {
       name: "Properties",
       icon: Building2,
       path: "properties",
       requiresAdmin: true,
     },
-    { name: "Tenants", icon: Users, path: "tenants", requiresAdmin: true },
+    { name: "Add Floor", icon: Layers, path: "floors", requiresAdmin: true },
     { name: "Units / Flats", icon: Layers, path: "units", requiresAdmin: true },
+    { name: "Tenants", icon: Users, path: "tenants", requiresAdmin: true },
     {
       name: "Payments",
       icon: CreditCard,
       path: "payments",
       requiresAdmin: true,
     },
+    
     { name: "Reports", icon: BarChart3, path: "reports", requiresAdmin: true },
     { name: "Settings", icon: Settings, path: "settings", requiresAdmin: true },
+    {
+      name: "Accounts Management",
+      icon: Home,
+      path: "accounts-management",
+      requiresAdmin: user?.role === "subadmin" ? false : true,
+    },
   ];
 
   return (
@@ -63,7 +66,7 @@ const AdminLayout = () => {
         md:translate-x-0`}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h1 className="text-xl font-bold text-indigo-600">Super Admin</h1>
+          <h1 className="text-xl font-bold text-[#9c4a1a]">Super Admin</h1>
           <button
             className="md:hidden p-1 rounded hover:bg-gray-100"
             onClick={() => setOpen(false)}
@@ -84,8 +87,8 @@ const AdminLayout = () => {
                 `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition
                 ${
                   isActive
-                    ? "bg-indigo-600 text-white"
-                    : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                    ? "bg-[#9c4a1a] text-white"
+                    : "text-gray-700 hover:bg-indigo-50 hover:text-[#9c4a1a]"
                 }`
               }
             >
@@ -93,7 +96,7 @@ const AdminLayout = () => {
               <span>{item.name}</span>
             </NavLink>
           ))}
-          <div className="flex item-center justify-start px-4 py-3 gap-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg cursor-pointer">
+          <div className="flex item-center justify-start px-4 py-3 gap-3 text-gray-700 hover:bg-red-600 hover:text-white rounded-lg cursor-pointer">
             <LogOut size={20} />
             <button className="text-sm font-medium" onClick={logout}>
               Logout
@@ -117,7 +120,7 @@ const AdminLayout = () => {
 
           <div className="flex items-center gap-3">
             <span className="hidden sm:block text-sm text-gray-600">Admin</span>
-            <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">
+            <div className="h-9 w-9 rounded-full bg-[#9c4a1a] text-white flex items-center justify-center font-semibold">
               A
             </div>
           </div>

@@ -50,7 +50,7 @@
 //                 `flex items-center gap-3 px-4 py-3 rounded-lg transition
 //                 ${
 //                   isActive
-//                     ? "bg-indigo-600 text-white"
+//                     ? "bg-[#9c4a1a] text-white"
 //                     : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
 //                 }`
 //               }
@@ -74,7 +74,7 @@
 
 //           <div className="flex items-center gap-3">
 //             <span className="text-sm text-gray-600">Admin</span>
-//             <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">
+//             <div className="h-9 w-9 rounded-full bg-[#9c4a1a] text-white flex items-center justify-center font-semibold">
 //               A
 //             </div>
 //           </div>

@@ -183,7 +183,7 @@ const SecurityTab = ({ passwords, setPasswords, onSubmit }) => (
         }
       />
 
-      <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg text-sm">
+      <button className="w-full bg-[#9c4a1a] hover:bg-indigo-700 text-white py-2.5 rounded-lg text-sm">
         Update Password
       </button>
     </div>

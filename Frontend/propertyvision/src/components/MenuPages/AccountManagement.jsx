@@ -94,7 +94,7 @@ const AccountManagement = () => {
             setEditId(null);
             setOpen(true);
           }}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          className="bg-[#9c4a1a] hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
         >
           <Plus size={18} /> Create Account
         </button>
@@ -185,7 +185,7 @@ const AccountManagement = () => {
 
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium"
+                className="w-full bg-[#9c4a1a] hover:bg-indigo-700 text-white py-2 rounded-lg font-medium"
               >
                 {editId ? "Update Account" : "Create Account"}
               </button>

@@ -1,5 +1,5 @@
 const PropertiesManagement = require('../models/Propertiesmanagement');
-
+const generatePropertyId = require('../utils/generatePropertyId');
 /* =========================
    CREATE PROPERTY
 ========================= */
@@ -26,38 +26,59 @@ const PropertiesManagement = require('../models/Propertiesmanagement');
 //   }
 // };
 
-const generatePropertyId = require('../utils/generatePropertyId');
+
 
 exports.createProperty = async (req, res) => {
   try {
-    const data = req.body;
+    const location = req.body.location
+      ? JSON.parse(req.body.location)
+      : {};
 
-    // AUTO GENERATE PROPERTY ID
-    data.propertyId = await generatePropertyId();
+    const physicalDetails = req.body.physicalDetails
+      ? JSON.parse(req.body.physicalDetails)
+      : {};
 
-    const property = await PropertiesManagement.create(data);
+    const financialDetails = req.body.financialDetails
+      ? JSON.parse(req.body.financialDetails)
+      : {};
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Property image is required",
+      });
+    }
+
+    const propertyId = await generatePropertyId();
+
+    const property = await PropertiesManagement.create({
+      propertyId,
+      propertyName: req.body.propertyName,
+      propertyType: req.body.propertyType,
+      ownershipType: req.body.ownershipType,
+      description: req.body.description,
+
+      location,
+      physicalDetails,
+      financialDetails,
+
+      propertyimgUrl: `/uploads/${req.file.filename}`,
+    });
 
     res.status(201).json({
       success: true,
       message: "Property created successfully",
       data: property,
     });
-
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "Property ID already exists",
-      });
-    }
-
+    console.error(error);
     res.status(400).json({
       success: false,
-      message: "Error creating property",
-      error: error.message,
+      message: error.message,
     });
   }
-};
+};  
+
 
 /* =========================
    GET ALL PROPERTIES
@@ -196,6 +217,9 @@ exports.updateProperty = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+
 
 /* =========================
    DELETE PROPERTY (SOFT DELETE)

@@ -5,15 +5,16 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
 const propertyRoutes = require("./routes/property.routes");
+const floorRoutes = require("./routes/floor.routes");
+const unitRoutes = require("./routes/unit.routes");
 const tenantRoutes = require("./routes/tenant.routes");
-
-
 
 dotenv.config();
 connectDB();
 
-const app = express();
 
+const app = express();
+app.use("/uploads", express.static("uploads"));
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -33,17 +34,9 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/auth/v1/admin", authRoutes);
 app.use('/api/properties', propertyRoutes);
-app.use('/api/tenants', require('./routes/tenant.routes'));
-
-
-// Global Error Handler
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(err.status || 500).json({
-//     success: false,
-//     message: err.message || "Server Error",
-//   });
-// });
+app.use('/api/floors', floorRoutes);
+app.use("/api/units", unitRoutes);
+app.use("/api/tenants", tenantRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

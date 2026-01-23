@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 /* =========================
    CONFIG
@@ -34,6 +35,8 @@ const initialForm = {
     builtUpArea: "",
     numberOfFloors: "",
     yearBuilt: "",
+    propertyimgUrl: null,
+    parkingAvailable: false,
   },
   financialDetails: {
     purchasePrice: "",
@@ -89,6 +92,8 @@ const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
 
+    const navigate = useNavigate(); // ✅ HERE
+
   /* TOAST */
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -139,22 +144,63 @@ const Properties = () => {
     setStep(step + 1);
   };
 
+  // const submit = async () => {
+  //   const e = validateStep(step, formData);
+  //   if (Object.keys(e).length) {
+  //     showValidationToast(Object.values(e)[0]);
+  //     return;
+  //   }
+
+  //   if (isEdit) {
+  //     await axios.put(`${API_URL}/${selectedProperty._id}`, formData);
+  //   } else {
+  //     await axios.post(API_URL, formData);
+  //   }
+
+  //   fetchProperties();
+  //   closeForm();
+  // };
+
   const submit = async () => {
-    const e = validateStep(step, formData);
-    if (Object.keys(e).length) {
-      showValidationToast(Object.values(e)[0]);
-      return;
-    }
+  const e = validateStep(step, formData);
+  if (Object.keys(e).length) {
+    showValidationToast(Object.values(e)[0]);
+    return;
+  }
+
+  try {
+    const payload = new FormData();
+
+    payload.append("propertyName", formData.propertyName);
+    payload.append("propertyType", formData.propertyType);
+    payload.append("ownershipType", formData.ownershipType);
+    payload.append("description", formData.description || "");
+    payload.append("propertyimgUrl", formData.propertyimgUrl);
+
+    payload.append("location", JSON.stringify(formData.location));
+    payload.append("physicalDetails", JSON.stringify(formData.physicalDetails));
+    payload.append("financialDetails", JSON.stringify(formData.financialDetails));
 
     if (isEdit) {
-      await axios.put(`${API_URL}/${selectedProperty._id}`, formData);
+      await axios.put(
+        `${API_URL}/${selectedProperty._id}`,
+        payload,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
     } else {
-      await axios.post(API_URL, formData);
+      await axios.post(API_URL, payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
     }
 
     fetchProperties();
     closeForm();
-  };
+  } catch (err) {
+    showValidationToast(
+      err?.response?.data?.message || "Something went wrong"
+    );
+  }
+};
 
   const closeForm = () => {
     setOpenForm(false);
@@ -174,7 +220,6 @@ const Properties = () => {
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
-
       {/* HEADER */}
       <div className="flex justify-between mb-6">
         <div>
@@ -183,69 +228,147 @@ const Properties = () => {
         </div>
         <button
           onClick={() => setOpenForm(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg"
+          className="bg-[#9c4a1a] text-white px-4 py-2 rounded-lg"
         >
           + Add Property
         </button>
       </div>
+{/* STATS */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div className="bg-white rounded-xl shadow p-4">
+    <p className="text-sm text-gray-500">Total Properties</p>
+    <p className="text-2xl font-semibold">{properties.length}</p>
+  </div>
 
-      {/* TABLE */}
-      <div className="bg-white rounded-xl shadow overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-100 text-xs uppercase">
-            <tr>
-              <th className="px-4 py-3">Property ID</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">City</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan="6" className="p-6 text-center">Loading...</td></tr>
-            ) : properties.map(p => (
-              <tr key={p._id} className="border-t">
-                <td className="px-4 py-3 text-indigo-600">{p.propertyId}</td>
-                <td className="px-4 py-3">{p.propertyName}</td>
-                <td className="px-4 py-3">{p.propertyType}</td>
-                <td className="px-4 py-3">{p.location?.city}</td>
-                <td className="px-4 py-3">
-                  <span className="px-3 py-1 rounded-full text-xs bg-green-100 text-green-700">
-                    {p.propertyStatus || "Active"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 flex gap-3">
-                  <button
-                    className="text-blue-600"
-                    onClick={() => { setSelectedProperty(p); setOpenView(true); }}
-                  >
-                    View
-                  </button>
-                  <button
-                    className="text-indigo-600"
-                    onClick={() => {
-                      setSelectedProperty(p);
-                      setFormData(p);
-                      setIsEdit(true);
-                      setOpenForm(true);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600"
-                    onClick={() => deleteProperty(p._id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  <div className="bg-white rounded-xl shadow p-4">
+    <p className="text-sm text-gray-500">Active Properties</p>
+    <p className="text-2xl font-semibold text-green-600">
+      {properties.filter(p => p.propertyStatus !== "Inactive").length}
+    </p>
+  </div>
+
+  <div className="bg-white rounded-xl shadow p-4">
+    <p className="text-sm text-gray-500">Inactive Properties</p>
+    <p className="text-2xl font-semibold text-red-600">
+      {properties.filter(p => p.propertyStatus === "Inactive").length}
+    </p>
+  </div>
+
+  <div className="bg-white rounded-xl shadow p-4">
+    <p className="text-sm text-gray-500">Portfolio Value</p>
+    <p className="text-2xl font-semibold">₹—</p>
+  </div>
+</div>
+
+      {/* PROPERTY CARDS */}
+<div className="bg-white rounded-xl shadow p-6">
+  <h2 className="text-lg font-semibold mb-4">Properties</h2>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {loading ? (
+      <div className="col-span-full text-center py-10">
+        Loading...
       </div>
+  ) : properties.map(p => (
+    <div
+      key={p._id}
+      className="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
+    >
+      {/* IMAGE */}
+      <div className="relative h-44">
+      <img
+  src={
+    p.propertyimgUrl
+      ? `http://localhost:5000${p.propertyimgUrl}`
+      : "https://via.placeholder.com/600x400"
+  }
+  alt={p.propertyName}
+  className="w-full h-full object-cover"
+/>
+
+
+        {/* TYPE BADGE */}
+        <span className="absolute top-3 left-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+          {p.propertyType}
+        </span>
+
+        {/* STATUS BADGE */}
+        <span className="absolute top-3 right-3 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
+          {p.propertyStatus || "Active"}
+        </span>
+      </div>
+
+      {/* CONTENT */}
+      <div className="p-5 space-y-3">
+        <h3 className="text-lg font-semibold truncate">
+          {p.propertyName}
+        </h3>
+
+        <p className="text-sm text-gray-500">
+          {p.location?.address || "—"}, {p.location?.city || "—"}
+        </p>
+
+        {/* STATS */}
+        <div className="grid grid-cols-2 gap-4 pt-2 text-sm">
+          <div>
+            <p className="text-gray-400 text-xs">Total Units</p>
+            <p className="font-semibold">
+              {p.totalUnits || "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Occupancy</p>
+            <p className="font-semibold text-green-600">
+              {p.occupancy || "—"}%
+            </p>
+          </div>
+        </div>
+
+        {/* PRICE */}
+        <div className="pt-2">
+          <p className="text-xl font-bold">
+            ₹{p.financialDetails?.currentMarketValue || "—"}
+          </p>
+          <p className="text-xs text-gray-400">
+            Monthly Revenue
+          </p>
+        </div>
+      </div>
+
+      {/* ACTIONS */}
+      <div className="border-t px-5 py-3 flex justify-between text-sm">
+        <button
+          className="text-blue-600 hover:underline"
+          onClick={() => {
+            setSelectedProperty(p);
+            setOpenView(true);
+          }}
+        >
+          View
+        </button>
+
+        <button
+          className="text-indigo-600 hover:underline"
+          onClick={() => {
+            setSelectedProperty(p);
+            setFormData(p);
+            setIsEdit(true);
+            setOpenForm(true);
+          }}
+        >
+          Edit
+        </button>
+        <button
+          className="text-red-600 hover:underline"
+          onClick={() => deleteProperty(p._id)}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
 
       {openForm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
@@ -259,6 +382,7 @@ const Properties = () => {
               <button onClick={closeForm} className="text-2xl">&times;</button>
             </div>
 
+        
             {/* STEP INDICATOR */}
             <div className="px-6 py-4 bg-gray-50 border-b">
               <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -271,7 +395,7 @@ const Properties = () => {
                     <div key={label} className="flex-1 flex items-center">
                       <div
                         className={`w-8 h-8 flex items-center justify-center rounded-full font-semibold
-                    ${active ? "bg-indigo-600 text-white"
+                    ${active ? "bg-[#9c4a1a] text-white"
                             : done ? "bg-green-600 text-white"
                               : "bg-gray-300 text-gray-700"}`}
                       >
@@ -367,44 +491,90 @@ const Properties = () => {
               )}
 
               {/* STEP 3 – PROPERTY DETAILS */}
-              {step === 3 && (
-                <section className="space-y-8">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-4">Physical Details</h3>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {["totalArea", "builtUpArea", "numberOfFloors", "yearBuilt"].map(f => (
-                        <div key={f}>
-                          <label className="capitalize">{f}</label>
-                          <input type="number" className="input"
-                            value={formData.physicalDetails[f] || ""}
-                            onChange={e => updateField("physicalDetails", f, e.target.value)} />
-                        </div>
-                      ))}
+             {step === 3 && (
+  <section className="space-y-8">
 
-                      <div className="flex items-center gap-2">
-                        <input type="checkbox"
-                          checked={formData.physicalDetails.parkingAvailable || false}
-                          onChange={e => updateField("physicalDetails", "parkingAvailable", e.target.checked)} />
-                        <label>Parking Available</label>
-                      </div>
-                    </div>
-                  </div>
+    {/* PHYSICAL DETAILS */}
+    <div>
+      <h3 className="font-semibold text-lg mb-4">Physical Details</h3>
 
-                  <div>
-                    <h3 className="font-semibold text-lg mb-4">Financial Details</h3>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {["purchasePrice", "currentMarketValue", "propertyTaxAmount", "maintenanceCost"].map(f => (
-                        <div key={f}>
-                          <label className="capitalize">{f}</label>
-                          <input type="number" className="input"
-                            value={formData.financialDetails[f] || ""}
-                            onChange={e => updateField("financialDetails", f, e.target.value)} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </section>
-              )}
+      <div className="grid sm:grid-cols-2 gap-4">
+        {["totalArea", "builtUpArea", "numberOfFloors", "yearBuilt"].map(f => (
+          <div key={f}>
+            <label className="capitalize">{f}</label>
+            <input
+              type="number"
+              className="input"
+              value={formData.physicalDetails[f] || ""}
+              onChange={e =>
+                updateField("physicalDetails", f, e.target.value)
+              }
+            />
+          </div>
+        ))}
+
+        <div className="flex items-center gap-2 sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={formData.physicalDetails.parkingAvailable || false}
+            onChange={e =>
+              updateField(
+                "physicalDetails",
+                "parkingAvailable",
+                e.target.checked
+              )
+            }
+          />
+          <label>Parking Available</label>
+        </div>
+      </div>
+    </div>
+
+             <div>
+      <h3 className="font-semibold text-lg mb-4">Property Image</h3>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="sm:col-span-2">
+          <label className="block mb-1">Upload Property Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            className="input"
+            onChange={(e) =>
+              updateField(null, "propertyimgUrl", e.target.files[0])
+            }
+          />
+        </div>
+      </div>
+    </div>
+
+     <div>
+      <h3 className="font-semibold text-lg mb-4">Financial Details</h3>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        {[
+          "purchasePrice",
+          "currentMarketValue",
+          "propertyTaxAmount",
+          "maintenanceCost",
+        ].map(f => (
+          <div key={f}>
+            <label className="capitalize">{f}</label>
+            <input
+              type="number"
+              className="input"
+              value={formData.financialDetails[f] || ""}
+              onChange={e =>
+                updateField("financialDetails", f, e.target.value)
+              }
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
 
               {/* STEP 4 – REVIEW */}
               {step === 4 && (
@@ -435,7 +605,7 @@ const Properties = () => {
                 {step < 4 ? (
                   <button
                     onClick={nextStep}
-                    className="bg-indigo-600 text-white px-6 py-2 rounded"
+                    className="bg-[#9c4a1a] text-white px-6 py-2 rounded"
                   >
                     Next
                   </button>
@@ -608,7 +778,7 @@ const Properties = () => {
       
     </div>
 
-    
+    </div>
   );
   
 };

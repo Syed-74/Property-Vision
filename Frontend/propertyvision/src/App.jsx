@@ -13,28 +13,30 @@ import Payments from "./components/MenuPages/Payments";
 import Reports from "./components/MenuPages/Reports";
 import Settings from "./components/MenuPages/Settings";
 import AccountManagement from "./components/MenuPages/AccountManagement";
+import Floor from "./components/MenuPages/Floor";
+import TenantDetails from "./components/MenuPages/TenantDetails";
 
 function App() {
   return (
-  
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Content />} />
-        <Route path="/login" element={<Login />} />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Content />} />
+      <Route path="/login" element={<Login />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<AdminLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="accounts-management" element={<AccountManagement />} />
-          <Route path="properties" element={<Properties />} />
-          <Route path="tenants" element={<Tenants />} />
-          <Route path="units" element={<Units />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-  
+      {/* Admin Routes */}
+      <Route path="/admin/dashboard" element={<AdminLayout />}>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="properties" element={<Properties />} />
+        <Route path="floors" element={<Floor />} />
+        <Route path="units" element={<Units />} />
+        <Route path="tenants" element={<Tenants />} />
+        <Route path="tenants/:tenantId" element={<TenantDetails />} />
+        <Route path="payments" element={<Payments />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="accounts-management" element={<AccountManagement />} />
+      </Route>
+    </Routes>
   );
 }
 

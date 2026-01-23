@@ -2,149 +2,51 @@ const mongoose = require("mongoose");
 
 const tenantSchema = new mongoose.Schema(
   {
-    /* ================= 1️⃣ BASIC TENANT INFORMATION ================= */
-
-    tenantId: {
+    tenantCode: {
       type: String,
       required: true,
       unique: true,
-      index: true, // TEN-0001
-    },
-
-    firstName: {
-      type: String,
-      required: true,
       trim: true,
     },
 
-    lastName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    fullName: { type: String, required: true },
+    phone: String,
+    email: String,
 
-    fullName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    gender: {
-      type: String,
-      enum: ["Male", "Female", "Other"],
-    },
-
-    dateOfBirth: {
-      type: Date,
-    },
-
-    maritalStatus: {
-      type: String,
-      enum: ["Single", "Married", "Divorced", "Widowed"],
-    },
-
-    nationality: {
-      type: String,
-    },
-
-    profilePhoto: {
-      type: String, // image path / URL
-    },
-
-    /* ================= 2️⃣ CONTACT INFORMATION ================= */
-
-    mobileNumber: {
-      type: String,
+    propertyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PropertiesManagement",
       required: true,
     },
 
-    alternatePhoneNumber: {
-      type: String,
-    },
-
-    email: {
-      type: String,
-      lowercase: true,
-      trim: true,
-    },
-
-    /* ================= 3️⃣ IDENTITY & LEGAL DOCUMENTS ================= */
-
-    idType: {
-      type: String,
-      enum: ["Aadhaar", "Passport", "Driving License", "Voter ID"],
+    floorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Floor",
       required: true,
     },
 
-    idNumber: {
-      type: String,
+    unitId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Unit",
       required: true,
+      unique: true, // ❗ One tenant per unit
     },
 
-    idDocument: {
-      type: String, // file path
-    },
+    rentAmount: { type: Number, required: true },
+    maintenanceAmount: { type: Number, default: 0 },
 
-    policeVerificationStatus: {
+    leaseStartDate: { type: Date, required: true },
+    leaseEndDate: Date,
+
+    status: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected"],
-      default: "Pending",
-    },
-
-    /* ================= 4️⃣ ADDRESS DETAILS ================= */
-
-    currentAddressLine1: {
-      type: String,
-      required: true,
-    },
-
-    currentAddressLine2: {
-      type: String,
-    },
-
-    currentCity: {
-      type: String,
-      required: true,
-    },
-
-    currentState: {
-      type: String,
-      required: true,
-    },
-
-    currentCountry: {
-      type: String,
-      required: true,
-    },
-
-    currentPincode: {
-      type: String,
-      required: true,
-    },
-
-    /* ================= SYSTEM & STATUS ================= */
-
-    tenantStatus: {
-      type: String,
-      enum: ["Active", "Notice Period", "Vacated", "Blacklisted"],
+      enum: ["Active", "Vacated"],
       default: "Active",
     },
 
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
-
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "admin", // Admin reference
-    },
+    isDeleted: { type: Boolean, default: false },
   },
-  {
-    timestamps: true, // createdAt, updatedAt
-  }
+  { timestamps: true }
 );
 
-const Tenant = mongoose.model("Tenant", tenantSchema);
-
-module.exports = Tenant;
+module.exports = mongoose.model("Tenant", tenantSchema);
