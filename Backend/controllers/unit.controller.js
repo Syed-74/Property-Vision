@@ -62,3 +62,16 @@ exports.deleteUnit = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+exports.getUnitById = async (req, res) => {
+  try {
+    const unit = await Unit.findById(req.params.unitId);
+    if (!unit) {
+      return res.status(404).json({ success: false, message: "Unit not found" });
+    }
+    res.json({ success: true, data: unit });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

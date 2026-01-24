@@ -6,7 +6,9 @@ const {
   updateAdmin,
   deleteAdmin,
   changePassword,
-  getUserProfile
+  getUserProfile,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/auth.controllers");
 const { protect, authorize } = require("../middlewares/authMiddleware");
 
@@ -28,7 +30,8 @@ router.put(
   authorize("admin", "subadmin"),
   changePassword
 );
-
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 /**
  * PROTECTED ROUTES (Example)

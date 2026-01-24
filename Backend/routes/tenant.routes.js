@@ -10,5 +10,9 @@ router.post("/:tenantId/rents", controller.addMonthlyRent);
 router.get("/:tenantId/rents", controller.getTenantRents);
 router.get("/:id", controller.getTenantById);
 
+router.put("/rents/:rentId", controller.updateRent);
+router.delete("/rents/:rentId", controller.deleteRent);
+
+
 
 module.exports = router;

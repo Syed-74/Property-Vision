@@ -3,30 +3,6 @@ const generatePropertyId = require('../utils/generatePropertyId');
 /* =========================
    CREATE PROPERTY
 ========================= */
-// exports.createProperty = async (req, res) => {
-//   try {
-//     const propertyData = req.body;
-
-//     // Optional: attach logged-in user
-//     propertyData.createdBy = req.user?.id || null;
-
-//     const property = await PropertiesManagement.create(propertyData);
-
-//     return res.status(201).json({
-//       success: true,
-//       message: 'Property created successfully',
-//       data: property,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Error creating property',
-//       error: error.message,
-//     });
-//   }
-// };
-
-
 
 exports.createProperty = async (req, res) => {
   try {
@@ -150,41 +126,6 @@ exports.getPropertyById = async (req, res) => {
 /* =========================
    UPDATE PROPERTY
 ========================= */
-// exports.updateProperty = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     const updatedData = {
-//       ...req.body,
-//       updatedBy: req.user?.id || null,
-//     };
-
-//     const property = await PropertiesManagement.findOneAndUpdate(
-//       { _id: id, isDeleted: false },
-//       updatedData,
-//       { new: true, runValidators: true }
-//     );
-
-//     if (!property) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Property not found',
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: 'Property updated successfully',
-//       data: property,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Error updating property',
-//       error: error.message,
-//     });
-//   }
-// };
 
 
 exports.updateProperty = async (req, res) => {
@@ -217,8 +158,6 @@ exports.updateProperty = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
 
 
 /* =========================

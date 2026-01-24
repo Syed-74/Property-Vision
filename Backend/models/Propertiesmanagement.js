@@ -79,18 +79,18 @@ const propertiesManagementSchema = new mongoose.Schema(
       address: { type: String, required: true },
       landmark: { type: String },
       pincode: { type: String },
-      latitude: { type: Number },
-      longitude: { type: Number },
+      // latitude: { type: Number },
+      // longitude: { type: Number },
     },
 
     /* =========================
        3. Physical Details
     ========================== */
     physicalDetails: {
-      totalArea: { type: Number }, // sq ft
-      builtUpArea: { type: Number },
-      numberOfFloors: { type: Number },
-      yearBuilt: { type: Number },
+      totalArea: { type: String }, // sq ft
+      builtUpArea: { type: String },
+      numberOfFloors: { type: String },
+      yearBuilt: { type: String },
       parkingAvailable: { type: Boolean, default: false },
       waterSupplyType: { type: String },
       electricityMeterNumber: { type: String },

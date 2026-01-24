@@ -475,7 +475,7 @@ const Properties = () => {
                       </div>
                     ))}
 
-                    <div>
+                    {/* <div>
                       <label>Latitude</label>
                       <input type="number" className="input"
                         onChange={e => updateField("location", "latitude", e.target.value)} />
@@ -485,7 +485,7 @@ const Properties = () => {
                       <label>Longitude</label>
                       <input type="number" className="input"
                         onChange={e => updateField("location", "longitude", e.target.value)} />
-                    </div>
+                    </div> */}
                   </div>
                 </section>
               )}
@@ -503,7 +503,7 @@ const Properties = () => {
           <div key={f}>
             <label className="capitalize">{f}</label>
             <input
-              type="number"
+              type="text"
               className="input"
               value={formData.physicalDetails[f] || ""}
               onChange={e =>
@@ -686,8 +686,8 @@ const Properties = () => {
                   <Info label="Address" value={selectedProperty.location?.address} />
                   <Info label="Landmark" value={selectedProperty.location?.landmark || "—"} />
                   <Info label="Pincode" value={selectedProperty.location?.pincode || "—"} />
-                  <Info label="Latitude" value={selectedProperty.location?.latitude || "—"} />
-                  <Info label="Longitude" value={selectedProperty.location?.longitude || "—"} />
+                  {/* <Info label="Latitude" value={selectedProperty.location?.latitude || "—"} />
+                  <Info label="Longitude" value={selectedProperty.location?.longitude || "—"} /> */}
                 </div>
               </section>
 

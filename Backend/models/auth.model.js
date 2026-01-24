@@ -33,6 +33,8 @@ const authSchema = new mongoose.Schema(
       enum: ["admin", "subadmin"],
       default: "subadmin",
     },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   { timestamps: true }
 );

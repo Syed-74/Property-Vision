@@ -8,6 +8,8 @@ const propertyRoutes = require("./routes/property.routes");
 const floorRoutes = require("./routes/floor.routes");
 const unitRoutes = require("./routes/unit.routes");
 const tenantRoutes = require("./routes/tenant.routes");
+const paymentRoutes = require("./routes/payment.routes");
+
 
 dotenv.config();
 connectDB();
@@ -37,6 +39,8 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/floors', floorRoutes);
 app.use("/api/units", unitRoutes);
 app.use("/api/tenants", tenantRoutes);
+app.use("/api/payments", paymentRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

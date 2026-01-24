@@ -6,6 +6,7 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [passwords, setPasswords] = useState({
     currentPassword: "",
@@ -13,13 +14,21 @@ const Settings = () => {
     confirmPassword: "",
   });
 
-  /* ---------------- FETCH PROFILE ---------------- */
-
+  /* ================= FETCH PROFILE ================= */
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await api.get("/admin/dashboard");
-        setUser(res.data.user);
+        const res = await api.get("/profile");
+
+        const profile = res.data.user || res.data.data;
+
+        setUser({
+          username: profile.username || profile.name || profile.fullName || "",
+          email: profile.email || "",
+          mobileNumber:
+            profile.mobileNumber || profile.mobile || profile.phone || "",
+          role: profile.role || "",
+        });
       } catch (error) {
         console.error("Failed to load profile", error);
       } finally {
@@ -30,10 +39,14 @@ const Settings = () => {
     fetchProfile();
   }, []);
 
-  /* ---------------- CHANGE PASSWORD ---------------- */
-
+  /* ================= CHANGE PASSWORD ================= */
   const handlePasswordChange = async (e) => {
     e.preventDefault();
+
+    if (!passwords.currentPassword || !passwords.newPassword) {
+      alert("All fields are required");
+      return;
+    }
 
     if (passwords.newPassword !== passwords.confirmPassword) {
       alert("Passwords do not match");
@@ -53,15 +66,23 @@ const Settings = () => {
         newPassword: "",
         confirmPassword: "",
       });
-    } catch (error) {
-      alert(error.response?.data?.message || "Password update failed");
+    } catch (err) {
+      alert(err.response?.data?.message || "Password update failed");
     }
   };
 
+  /* ================= STATES ================= */
   if (loading) {
-    return <p className="p-6 text-center">Loading settings...</p>;
+    return (
+      <div className="p-6 text-center text-gray-500">Loading settings...</div>
+    );
   }
 
+  if (error) {
+    return <div className="p-6 text-center text-red-600">{error}</div>;
+  }
+
+  /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-gray-50 px-3 py-4 sm:px-6 sm:py-6">
       {/* HEADER */}
@@ -76,7 +97,7 @@ const Settings = () => {
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="flex flex-col md:flex-row">
-          {/* TABS */}
+          {/* ================= TABS ================= */}
           <div className="w-full md:w-64 bg-gray-50 border-b md:border-b-0 md:border-r flex md:flex-col">
             <Tab
               icon={<User size={18} />}
@@ -98,7 +119,7 @@ const Settings = () => {
             />
           </div>
 
-          {/* CONTENT */}
+          {/* ================= CONTENT ================= */}
           <div className="flex-1 p-4 sm:p-6">
             {activeTab === "profile" && <ProfileTab user={user} />}
             {activeTab === "security" && (
@@ -116,12 +137,13 @@ const Settings = () => {
   );
 };
 
-/* ---------------- TABS ---------------- */
+/* ================= TAB BUTTON ================= */
 
 const Tab = ({ icon, label, active, onClick }) => (
   <button
     onClick={onClick}
-    className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-4 py-3 text-sm font-medium border-b md:border-b-0 md:border-l-4
+    className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2
+      px-4 py-3 text-sm font-medium border-b md:border-b-0 md:border-l-4 transition
       ${
         active
           ? "bg-white text-indigo-600 border-indigo-600"
@@ -133,28 +155,25 @@ const Tab = ({ icon, label, active, onClick }) => (
   </button>
 );
 
-/* ---------------- PROFILE ---------------- */
+/* ================= PROFILE ================= */
 
 const ProfileTab = ({ user }) => (
   <div className="space-y-6">
     <Section title="Profile Information" subtitle="Account details" />
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <Input label="Username" value={user.username} disabled />
-      <Input label="Email" value={user.email} disabled />
-      <Input label="Mobile Number" value={user.mobileNumber} disabled />
-      <Input label="Role" value={user.role} disabled />
+      <Input label="Username" value={user?.username || ""} disabled />
+      <Input label="Email" value={user?.email || ""} disabled />
+      <Input label="Mobile Number" value={user?.mobileNumber || ""} disabled />
+      <Input label="Role" value={user?.role || ""} disabled />
     </div>
   </div>
 );
 
-/* ---------------- SECURITY ---------------- */
+/* ================= SECURITY ================= */
 
 const SecurityTab = ({ passwords, setPasswords, onSubmit }) => (
-  <form
-    onSubmit={onSubmit}
-    className="space-y-6 w-full max-w-md mx-auto"
-  >
+  <form onSubmit={onSubmit} className="space-y-6 w-full max-w-md mx-auto">
     <Section title="Security" subtitle="Change your password" />
 
     <div className="bg-gray-50 p-4 sm:p-6 rounded-xl space-y-4">
@@ -183,14 +202,17 @@ const SecurityTab = ({ passwords, setPasswords, onSubmit }) => (
         }
       />
 
-      <button className="w-full bg-[#9c4a1a] hover:bg-indigo-700 text-white py-2.5 rounded-lg text-sm">
+      <button
+        type="submit"
+        className="w-full bg-[#9c4a1a] hover:bg-indigo-700 text-white py-2.5 rounded-lg text-sm transition"
+      >
         Update Password
       </button>
     </div>
   </form>
 );
 
-/* ---------------- PREFERENCES ---------------- */
+/* ================= PREFERENCES ================= */
 
 const PreferencesTab = () => (
   <div className="space-y-6 w-full max-w-md mx-auto">
@@ -200,7 +222,7 @@ const PreferencesTab = () => (
   </div>
 );
 
-/* ---------------- UI HELPERS ---------------- */
+/* ================= UI HELPERS ================= */
 
 const Section = ({ title, subtitle }) => (
   <div>

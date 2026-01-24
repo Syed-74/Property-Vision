@@ -15,6 +15,7 @@ import Settings from "./components/MenuPages/Settings";
 import AccountManagement from "./components/MenuPages/AccountManagement";
 import Floor from "./components/MenuPages/Floor";
 import TenantDetails from "./components/MenuPages/TenantDetails";
+import ResetPassword from "./components/AuthAdmin-Folder/ForgotPasswordModal";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       {/* Public Routes */}
       <Route path="/" element={<Content />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       {/* Admin Routes */}
       <Route path="/admin/dashboard" element={<AdminLayout />}>
@@ -32,9 +34,10 @@ function App() {
         <Route path="tenants" element={<Tenants />} />
         <Route path="tenants/:tenantId" element={<TenantDetails />} />
         <Route path="payments" element={<Payments />} />
-        <Route path="reports" element={<Reports />} />
+        {/* <Route path="reports" element={<Reports />} /> */}
         <Route path="settings" element={<Settings />} />
         <Route path="accounts-management" element={<AccountManagement />} />
+        
       </Route>
     </Routes>
   );

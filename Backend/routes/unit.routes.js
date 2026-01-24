@@ -6,5 +6,7 @@ router.post("/", controller.createUnit);                 // CREATE
 router.get("/property/:propertyId", controller.getUnitsByProperty); // READ
 router.put("/:unitId", controller.updateUnit);            // UPDATE
 router.delete("/:unitId", controller.deleteUnit);         // SOFT DELETE
+router.get("/:unitId", controller.getUnitById);
+
 
 module.exports = router;

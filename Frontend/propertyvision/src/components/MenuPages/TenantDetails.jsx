@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Pencil, Trash2 } from "lucide-react";
 
 const API = {
   tenants: "http://localhost:5000/api/tenants",
@@ -22,7 +23,9 @@ export default function TenantDetails() {
   const [rentForm, setRentForm] = useState(initialRent);
   const [loading, setLoading] = useState(false);
 
-  /* ================= LOAD TENANT & HISTORY ================= */
+  const [editingRent, setEditingRent] = useState(null);
+
+  /* ================= LOAD DATA ================= */
   const loadData = async () => {
     try {
       const tenantRes = await axios.get(`${API.tenants}/${tenantId}`);
@@ -41,10 +44,9 @@ export default function TenantDetails() {
     loadData();
   }, [tenantId]);
 
-  /* ================= SAVE MONTH ================= */
+  /* ================= ADD MONTH ================= */
   const saveMonth = async () => {
     if (!rentForm.month) return;
-
     try {
       setLoading(true);
       await axios.post(
@@ -56,6 +58,23 @@ export default function TenantDetails() {
     } finally {
       setLoading(false);
     }
+  };
+
+  /* ================= UPDATE RENT ================= */
+  const updateRent = async () => {
+    await axios.put(
+      `${API.tenants}/rents/${editingRent._id}`,
+      editingRent
+    );
+    setEditingRent(null);
+    loadData();
+  };
+
+  /* ================= DELETE RENT ================= */
+  const deleteRent = async id => {
+    if (!window.confirm("Delete this rent record?")) return;
+    await axios.delete(`${API.tenants}/rents/${id}`);
+    loadData();
   };
 
   if (!tenant) {
@@ -92,7 +111,7 @@ export default function TenantDetails() {
         </div>
       </div>
 
-      {/* ================= ADD MONTHLY RENT ================= */}
+      {/* ================= ADD MONTH ================= */}
       <div className="bg-white rounded-2xl shadow p-6">
         <h2 className="text-lg font-semibold mb-4">
           Add Monthly Rent
@@ -171,15 +190,13 @@ export default function TenantDetails() {
                 <th className="p-2 border">Maintenance</th>
                 <th className="p-2 border">Status</th>
                 <th className="p-2 border">Paid On</th>
+                <th className="p-2 border">Actions</th>
               </tr>
             </thead>
             <tbody>
               {rents.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="p-4 text-center text-gray-500"
-                  >
+                  <td colSpan="6" className="p-4 text-center text-gray-500">
                     No rent records found
                   </td>
                 </tr>
@@ -189,24 +206,27 @@ export default function TenantDetails() {
                     <td className="p-2 border">{r.month}</td>
                     <td className="p-2 border">₹{r.rentAmount}</td>
                     <td className="p-2 border">₹{r.maintenanceAmount}</td>
-                    <td className="p-2 border">
-                      <span
-                        className={`px-2 py-1 rounded text-xs
-                        ${
-                          r.paymentStatus === "Paid"
-                            ? "bg-green-100 text-green-700"
-                            : r.paymentStatus === "Late"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {r.paymentStatus}
-                      </span>
-                    </td>
+                    <td className="p-2 border">{r.paymentStatus}</td>
                     <td className="p-2 border">
                       {r.paidOn
                         ? new Date(r.paidOn).toLocaleDateString()
                         : "—"}
+                    </td>
+                    <td className="p-2 border">
+                      <div className="flex gap-3 justify-center">
+                        <button
+                          onClick={() => setEditingRent({ ...r })}
+                          className="text-indigo-600 hover:text-indigo-800"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => deleteRent(r._id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -215,6 +235,67 @@ export default function TenantDetails() {
           </table>
         </div>
       </div>
+
+      {/* ================= EDIT RENT MODAL ================= */}
+      {editingRent && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-md p-6 space-y-4">
+            <h3 className="font-semibold text-lg">Edit Rent</h3>
+
+            <input
+              className="input"
+              value={editingRent.rentAmount}
+              onChange={e =>
+                setEditingRent({
+                  ...editingRent,
+                  rentAmount: e.target.value,
+                })
+              }
+            />
+
+            <input
+              className="input"
+              value={editingRent.maintenanceAmount}
+              onChange={e =>
+                setEditingRent({
+                  ...editingRent,
+                  maintenanceAmount: e.target.value,
+                })
+              }
+            />
+
+            <select
+              className="input"
+              value={editingRent.paymentStatus}
+              onChange={e =>
+                setEditingRent({
+                  ...editingRent,
+                  paymentStatus: e.target.value,
+                })
+              }
+            >
+              <option>Pending</option>
+              <option>Paid</option>
+              <option>Late</option>
+            </select>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setEditingRent(null)}
+                className="px-4 py-2 rounded bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updateRent}
+                className="px-4 py-2 rounded bg-indigo-600 text-white"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

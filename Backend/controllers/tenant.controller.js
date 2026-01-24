@@ -3,8 +3,17 @@ const Rent = require("../models/rent.models");
 const Unit = require("../models/unit.model");
 
 /* CREATE TENANT */
+// tenant.controller.js
+// tenant.controller.js
 exports.createTenant = async (req, res) => {
   try {
+    if (!req.body.unitId) {
+      return res.status(400).json({
+        success: false,
+        message: "Unit is required",
+      });
+    }
+
     const tenant = await Tenant.create(req.body);
 
     await Unit.findByIdAndUpdate(tenant.unitId, {
@@ -13,9 +22,14 @@ exports.createTenant = async (req, res) => {
 
     res.status(201).json({ success: true, data: tenant });
   } catch (e) {
-    res.status(400).json({ success: false, message: e.message });
+    res.status(400).json({
+      success: false,
+      message: e.message,
+    });
   }
 };
+
+
 
 /* GET ALL TENANTS */
 exports.getAllTenants = async (req, res) => {
@@ -92,4 +106,34 @@ exports.getTenantById = async (req, res) => {
       message: err.message,
     });
   }
+};
+
+
+/* UPDATE RENT */
+exports.updateRent = async (req, res) => {
+  try {
+    const rent = await Rent.findByIdAndUpdate(
+      req.params.rentId,
+      {
+        rentAmount: req.body.rentAmount,
+        maintenanceAmount: req.body.maintenanceAmount,
+        paymentStatus: req.body.paymentStatus,
+        paidOn: req.body.paidOn,
+        totalAmount:
+          Number(req.body.rentAmount) +
+          Number(req.body.maintenanceAmount || 0),
+      },
+      { new: true }
+    );
+
+    res.json({ success: true, data: rent });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+/* DELETE RENT */
+exports.deleteRent = async (req, res) => {
+  await Rent.findByIdAndDelete(req.params.rentId);
+  res.json({ success: true });
 };
