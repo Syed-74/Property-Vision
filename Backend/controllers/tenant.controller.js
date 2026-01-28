@@ -7,14 +7,14 @@ const Unit = require("../models/unit.model");
 // tenant.controller.js
 exports.createTenant = async (req, res) => {
   try {
-    if (!req.body.unitId) {
-      return res.status(400).json({
-        success: false,
-        message: "Unit is required",
-      });
-    }
+    const files = req.files || {};
 
-    const tenant = await Tenant.create(req.body);
+    const tenant = await Tenant.create({
+      ...req.body,
+      aadhaarCard: files.aadhaarCard?.[0]?.path,
+      panCard: files.panCard?.[0]?.path,
+      bondPaper: files.bondPaper?.[0]?.path,
+    });
 
     await Unit.findByIdAndUpdate(tenant.unitId, {
       availabilityStatus: "Occupied",
@@ -22,12 +22,10 @@ exports.createTenant = async (req, res) => {
 
     res.status(201).json({ success: true, data: tenant });
   } catch (e) {
-    res.status(400).json({
-      success: false,
-      message: e.message,
-    });
+    res.status(400).json({ success: false, message: e.message });
   }
 };
+
 
 
 
@@ -43,11 +41,13 @@ exports.getAllTenants = async (req, res) => {
 
 /* VACATE TENANT */
 exports.deleteTenant = async (req, res) => {
-  const tenant = await Tenant.findByIdAndUpdate(
-    req.params.id,
-    { status: "Vacated", isDeleted: true },
-    { new: true }
-  );
+  const tenant = await Tenant.findById(req.params.id);
+
+  await Tenant.findByIdAndUpdate(req.params.id, {
+    status: "Vacated",
+    isDeleted: true,
+    unitId: null,
+  });
 
   await Unit.findByIdAndUpdate(tenant.unitId, {
     availabilityStatus: "Available",
@@ -55,6 +55,7 @@ exports.deleteTenant = async (req, res) => {
 
   res.json({ success: true });
 };
+
 
 /* ADD MONTHLY RENT */
 exports.addMonthlyRent = async (req, res) => {

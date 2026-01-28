@@ -193,82 +193,101 @@ const Units = () => {
       </div>
 
       {/* UNITS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-        {units.map((u) => (
-          <div
-            key={u._id}
-            className="
-        group bg-white rounded-2xl border border-gray-100
-        shadow-sm hover:shadow-xl transition-all duration-300
+     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+  {units.map((u) => (
+    <div
+      key={u._id}
+      className="
+        group relative bg-white rounded-2xl
+        border border-gray-100
+        shadow-sm hover:shadow-2xl
+        transition-all duration-300
         flex flex-col justify-between
+        overflow-hidden
       "
-          >
-            {/* HEADER */}
-            <div className="p-5 space-y-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Unit {u.unitNumber}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {u.floorId?.floorName || `Floor ${u.floorId?.floorNumber}`}
-                  </p>
-                </div>
+    >
+      {/* TOP ACCENT */}
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#9c4a1a] to-orange-400" />
 
-                <span
-                  className={`
-              text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap
+      {/* HEADER */}
+      <div className="p-5 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 leading-tight">
+              Unit {u.unitNumber}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {u.floorId?.floorName || `Floor ${u.floorId?.floorNumber}`}
+            </p>
+          </div>
+
+          {/* STATUS */}
+          <span
+            className={`
+              text-xs font-semibold px-3 py-1 rounded-full
               ${
                 u.availabilityStatus === "Available"
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-green-50 text-green-700 ring-1 ring-green-200"
                   : u.availabilityStatus === "Occupied"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-yellow-100 text-yellow-700"
+                  ? "bg-red-50 text-red-700 ring-1 ring-red-200"
+                  : "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200"
               }
             `}
-                >
-                  {u.availabilityStatus}
-                </span>
-              </div>
+          >
+            {u.availabilityStatus}
+          </span>
+        </div>
 
-              {/* RENT */}
-              <div className="mt-4">
-                <p className="text-xs uppercase tracking-wide text-gray-400">
-                  Monthly Rent
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  ₹{u.rentAmount || 0}
-                </p>
-              </div>
-            </div>
-
-            {/* ACTIONS */}
-            <div className="px-5 py-4 border-t bg-gray-50 rounded-b-2xl flex gap-3 justify-end">
-              <button
-                onClick={() => editUnit(u)}
-                className="
-            px-4 py-1.5 rounded-lg text-sm font-medium
-            text-[#9c4a1a] border border-indigo-100
-            hover:bg-indigo-50 transition
-          "
-              >
-                Edit
-              </button>
-
-              <button
-                onClick={() => deleteUnit(u._id)}
-                className="
-            px-4 py-1.5 rounded-lg text-sm font-medium
-            text-red-600 border border-red-100
-            hover:bg-red-50 transition
-          "
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        {/* RENT */}
+        <div className="pt-2">
+          <p className="text-xs uppercase tracking-wide text-gray-400">
+            Monthly Rent
+          </p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">
+            ₹{u.rentAmount || 0}
+            <span className="text-sm font-medium text-gray-500"> / month</span>
+          </p>
+        </div>
       </div>
+
+      {/* ACTIONS */}
+      <div
+        className="
+          px-5 py-4 border-t
+          bg-gray-50
+          flex items-center justify-end gap-3
+        "
+      >
+        <button
+          onClick={() => editUnit(u)}
+          className="
+            px-4 py-2 rounded-lg text-sm font-medium
+            text-[#9c4a1a]
+            border border-[#9c4a1a]/20
+            hover:bg-[#9c4a1a]/10
+            transition
+          "
+        >
+          Edit
+        </button>
+
+        <button
+          onClick={() => deleteUnit(u._id)}
+          className="
+            px-4 py-2 rounded-lg text-sm font-medium
+            text-red-600
+            border border-red-200
+            hover:bg-red-50
+            transition
+          "
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
 
       {/* MODAL */}
       {open && (
@@ -318,7 +337,7 @@ const Units = () => {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <input
                     className="input"
-                    type="number"
+                    type="String"
                     placeholder="Built-up Area"
                     value={form.builtUpArea}
                     onChange={(e) =>
@@ -328,7 +347,7 @@ const Units = () => {
 
                   <input
                     className="input"
-                    type="number"
+                    type="String"
                     placeholder="Carpet Area"
                     value={form.carpetArea}
                     onChange={(e) =>
@@ -338,7 +357,7 @@ const Units = () => {
 
                   <input
                     className="input"
-                    type="number"
+                    type="String"
                     placeholder="Bedrooms"
                     value={form.bedrooms}
                     onChange={(e) =>
@@ -348,7 +367,7 @@ const Units = () => {
 
                   <input
                     className="input"
-                    type="number"
+                    type="String"
                     placeholder="Bathrooms"
                     value={form.bathrooms}
                     onChange={(e) =>
@@ -358,7 +377,7 @@ const Units = () => {
 
                   <input
                     className="input"
-                    type="number"
+                    type="String"
                     placeholder="Balconies"
                     value={form.balconies}
                     onChange={(e) =>

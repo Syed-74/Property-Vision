@@ -17,40 +17,42 @@ const Login = ({ onClose }) => {
 
   /* ================= LOGIN ================= */
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const res = await api.post("/auth/v1/admin/login", {
-        email,
-        password,
-      });
+  try {
+    const res = await api.post("/auth/v1/admin/login", {
+      email: email.toLowerCase().trim(),
+      password,
+    });
 
-      const { token, user } = res.data;
+    const { token, user } = res.data;
 
-      // ✅ Store token
-      if (remember) {
-        localStorage.setItem("token", token);
-      } else {
-        sessionStorage.setItem("token", token);
-      }
-
-      // ✅ Close modal (if used as popup)
-      if (onClose) onClose();
-
-      // ✅ Role-based redirect
-      if (user?.role === "admin" || user?.role === "subadmin") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
+    if (!token || !user) {
+      throw new Error("Invalid server response");
     }
-  };
+
+    if (remember) {
+      localStorage.setItem("token", token);
+    } else {
+      sessionStorage.setItem("token", token);
+    }
+
+    if (onClose) onClose();
+
+    if (["admin", "subadmin"].includes(user.role)) {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/");
+    }
+  } catch (err) {
+    setError(err.response?.data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>

@@ -1,6 +1,22 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { CheckCircle, Clock, AlertTriangle } from "lucide-react";
-import api from "../../api/axios";
+
+/* ================= API CONFIG (LOCAL ONLY) ================= */
+
+const BASE_URL = "http://localhost:5000/api/payments";
+
+const getAuthHeaders = () => {
+  const token =
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
+
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
@@ -12,9 +28,12 @@ const Payments = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await api.get("/api/payments");
+        const res = await axios.get(
+          BASE_URL,
+          getAuthHeaders()
+        );
 
-        // ✅ SAFE RESPONSE HANDLING (VERY IMPORTANT)
+        // ✅ SAFE RESPONSE HANDLING
         const list =
           res.data?.data ||
           res.data?.payments ||
@@ -41,7 +60,10 @@ const Payments = () => {
   const sumByStatus = (status) =>
     payments
       .filter((p) => p.paymentStatus === status)
-      .reduce((sum, p) => sum + Number(p.totalAmount || 0), 0);
+      .reduce(
+        (sum, p) => sum + Number(p.totalAmount || 0),
+        0
+      );
 
   const totalCollected = sumByStatus("Paid");
   const totalPending = sumByStatus("Pending");
@@ -50,7 +72,9 @@ const Payments = () => {
   const filteredPayments =
     filter === "All"
       ? payments
-      : payments.filter((p) => p.paymentStatus === filter);
+      : payments.filter(
+          (p) => p.paymentStatus === filter
+        );
 
   /* ================= STATES ================= */
   if (loading) {
@@ -69,9 +93,9 @@ const Payments = () => {
     );
   }
 
+  /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 space-y-6">
-
       {/* ================= HEADER ================= */}
       <div>
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
@@ -99,27 +123,31 @@ const Payments = () => {
         <SummaryCard
           title="Late"
           amount={totalLate}
-          icon={<AlertTriangle className="text-red-600" />}
+          icon={
+            <AlertTriangle className="text-red-600" />
+          }
           bg="bg-red-50"
         />
       </div>
 
       {/* ================= FILTER ================= */}
       <div className="flex flex-wrap gap-2">
-        {["All", "Paid", "Pending", "Late"].map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium border transition
-              ${
-                filter === status
-                  ? "bg-[#9c4a1a] text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100"
-              }`}
-          >
-            {status}
-          </button>
-        ))}
+        {["All", "Paid", "Pending", "Late"].map(
+          (status) => (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition
+                ${
+                  filter === status
+                    ? "bg-[#9c4a1a] text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
+            >
+              {status}
+            </button>
+          )
+        )}
       </div>
 
       {/* ================= TABLE ================= */}
@@ -154,18 +182,23 @@ const Payments = () => {
                 >
                   <Td>{p.tenantName || "—"}</Td>
                   <Td>
-                    {p.propertyName || "—"} / {p.unitNumber || "—"}
+                    {p.propertyName || "—"} /{" "}
+                    {p.unitNumber || "—"}
                   </Td>
                   <Td>{p.month || "—"}</Td>
                   <Td className="font-semibold">
                     ₹{Number(p.totalAmount || 0)}
                   </Td>
                   <Td>
-                    <StatusBadge status={p.paymentStatus} />
+                    <StatusBadge
+                      status={p.paymentStatus}
+                    />
                   </Td>
                   <Td>
                     {p.paidOn
-                      ? new Date(p.paidOn).toLocaleDateString()
+                      ? new Date(
+                          p.paidOn
+                        ).toLocaleDateString()
                       : "—"}
                   </Td>
                 </tr>
@@ -181,13 +214,19 @@ const Payments = () => {
 /* ================= UI COMPONENTS ================= */
 
 const SummaryCard = ({ title, amount, icon, bg }) => (
-  <div className={`rounded-xl p-4 flex items-center gap-4 ${bg}`}>
+  <div
+    className={`rounded-xl p-4 flex items-center gap-4 ${bg}`}
+  >
     <div className="p-3 bg-white rounded-full shadow-sm">
       {icon}
     </div>
     <div>
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-lg font-semibold">₹{amount}</p>
+      <p className="text-sm text-gray-500">
+        {title}
+      </p>
+      <p className="text-lg font-semibold">
+        ₹{amount}
+      </p>
     </div>
   </div>
 );
@@ -202,7 +241,8 @@ const StatusBadge = ({ status }) => {
   return (
     <span
       className={`px-3 py-1 rounded-full text-xs font-medium ${
-        styles[status] || "bg-gray-100 text-gray-600"
+        styles[status] ||
+        "bg-gray-100 text-gray-600"
       }`}
     >
       {status || "Unknown"}
@@ -217,7 +257,9 @@ const Th = ({ children }) => (
 );
 
 const Td = ({ children, className = "" }) => (
-  <td className={`p-3 ${className}`}>{children}</td>
+  <td className={`p-3 ${className}`}>
+    {children}
+  </td>
 );
 
 export default Payments;

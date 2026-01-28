@@ -45,20 +45,48 @@ export default function TenantDetails() {
   }, [tenantId]);
 
   /* ================= ADD MONTH ================= */
+  // const saveMonth = async () => {
+  //   if (!rentForm.month) return;
+  //   try {
+  //     setLoading(true);
+  //     await axios.post(
+  //       `${API.tenants}/${tenantId}/rents`,
+  //       rentForm
+  //     );
+  //     setRentForm(initialRent);
+  //     loadData();
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const saveMonth = async () => {
-    if (!rentForm.month) return;
-    try {
-      setLoading(true);
-      await axios.post(
-        `${API.tenants}/${tenantId}/rents`,
-        rentForm
-      );
-      setRentForm(initialRent);
-      loadData();
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!rentForm.month) return;
+
+  try {
+    setLoading(true);
+
+    const payload = {
+      ...rentForm,
+      rentAmount: Number(
+        String(rentForm.rentAmount).replace(/[^\d]/g, "")
+      ),
+      maintenanceAmount: Number(
+        String(rentForm.maintenanceAmount).replace(/[^\d]/g, "")
+      ),
+    };
+
+    await axios.post(
+      `${API.tenants}/${tenantId}/rents`,
+      payload
+    );
+
+    setRentForm(initialRent);
+    loadData();
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   /* ================= UPDATE RENT ================= */
   const updateRent = async () => {
@@ -119,7 +147,7 @@ export default function TenantDetails() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <input
-            type="month"
+            type="date"
             className="input"
             value={rentForm.month}
             onChange={e =>
@@ -128,6 +156,7 @@ export default function TenantDetails() {
           />
 
           <input
+            type="String"
             className="input"
             placeholder="Rent Amount"
             value={rentForm.rentAmount}
@@ -137,6 +166,7 @@ export default function TenantDetails() {
           />
 
           <input
+            type="String"
             className="input"
             placeholder="Maintenance Amount"
             value={rentForm.maintenanceAmount}
@@ -149,6 +179,7 @@ export default function TenantDetails() {
           />
 
           <select
+            type
             className="input"
             value={rentForm.paymentStatus}
             onChange={e =>
@@ -185,7 +216,7 @@ export default function TenantDetails() {
           <table className="min-w-full text-sm border rounded-lg overflow-hidden">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-2 border">Month</th>
+                <th className="p-2 border">Payment Date</th>
                 <th className="p-2 border">Rent</th>
                 <th className="p-2 border">Maintenance</th>
                 <th className="p-2 border">Status</th>

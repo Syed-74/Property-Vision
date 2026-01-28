@@ -49,19 +49,30 @@ exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await Auth.findOne({ email }).select("+password");
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: "Invalid credentials" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const token = generateToken(user);
+
+    // ❌ remove password before sending
+    user.password = undefined;
 
     res.status(200).json({
-      token: generateToken(user),
+      success: true,
+      token,
       user,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // GET ALL ADMINS
 exports.getAllAdmins = async (req, res) => {

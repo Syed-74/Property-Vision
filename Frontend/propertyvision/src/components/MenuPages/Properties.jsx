@@ -45,6 +45,15 @@ const initialForm = {
     maintenanceCost: "",
     currency: "INR",
   },
+
+  documents: [
+    {
+      documentType: "Sale Deed",
+      documentFile: null,
+      issueDate: "",
+      expiryDate: "",
+    },
+  ],
 };
 
 
@@ -143,6 +152,37 @@ const Properties = () => {
     }
     setStep(step + 1);
   };
+
+  const addDocument = () => {
+  setFormData(p => ({
+    ...p,
+    documents: [
+      ...p.documents,
+      {
+        documentType: "Sale Deed",
+        documentFile: null,
+        issueDate: "",
+        expiryDate: "",
+      },
+    ],
+  }));
+};
+
+const removeDocument = (index) => {
+  setFormData(p => ({
+    ...p,
+    documents: p.documents.filter((_, i) => i !== index),
+  }));
+};
+
+const updateDocument = (index, field, value) => {
+  setFormData(p => {
+    const docs = [...p.documents];
+    docs[index][field] = value;
+    return { ...p, documents: docs };
+  });
+};
+
 
   // const submit = async () => {
   //   const e = validateStep(step, formData);
@@ -386,7 +426,7 @@ const Properties = () => {
             {/* STEP INDICATOR */}
             <div className="px-6 py-4 bg-gray-50 border-b">
               <div className="flex items-center justify-between text-xs sm:text-sm">
-                {["Basic Info", "Location", "Details", "Review"].map((label, index) => {
+                {["Basic Info", "Location", "Details","Documents", "Review", ].map((label, index) => {
                   const s = index + 1;
                   const active = step === s;
                   const done = step > s;
@@ -460,7 +500,6 @@ const Properties = () => {
                   </div>
                 </section>
               )}
-
               {/* STEP 2 – LOCATION */}
               {step === 2 && (
                 <section className="space-y-6">
@@ -474,22 +513,9 @@ const Properties = () => {
                           onChange={e => updateField("location", f, e.target.value)} />
                       </div>
                     ))}
-
-                    {/* <div>
-                      <label>Latitude</label>
-                      <input type="number" className="input"
-                        onChange={e => updateField("location", "latitude", e.target.value)} />
-                    </div>
-
-                    <div>
-                      <label>Longitude</label>
-                      <input type="number" className="input"
-                        onChange={e => updateField("location", "longitude", e.target.value)} />
-                    </div> */}
                   </div>
                 </section>
               )}
-
               {/* STEP 3 – PROPERTY DETAILS */}
              {step === 3 && (
   <section className="space-y-8">
@@ -574,10 +600,101 @@ const Properties = () => {
     </div>
   </section>
 )}
+  {step === 4 && (
+  <section className="space-y-6">
+    <div className="flex justify-between items-center">
+      <h3 className="font-semibold text-lg">Property Documents</h3>
+      <button
+        onClick={addDocument}
+        className="bg-[#9c4a1a] text-white px-3 py-1 rounded text-sm"
+      >
+        + Add Document
+      </button>
+    </div>
 
+    <div className="space-y-6">
+      {formData.documents.map((doc, index) => (
+        <div
+          key={index}
+          className="border rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative"
+        >
+          {/* Document Type */}
+          <div>
+            <label>Document Type</label>
+            <select
+              className="input"
+              value={doc.documentType}
+              onChange={e =>
+                updateDocument(index, "documentType", e.target.value)
+              }
+            >
+              {[
+                "Sale Deed",
+                "Tax Receipt",
+                "Registration",
+                "NOC",
+                "Agreement",
+                "Other",
+              ].map(t => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </div>
 
+          {/* File */}
+          <div>
+            <label>Upload File</label>
+            <input
+              type="file"
+              className="input"
+              onChange={e =>
+                updateDocument(index, "documentFile", e.target.files[0])
+              }
+            />
+          </div>
+
+          {/* Issue Date */}
+          <div>
+            <label>Issue Date</label>
+            <input
+              type="date"
+              className="input"
+              value={doc.issueDate}
+              onChange={e =>
+                updateDocument(index, "issueDate", e.target.value)
+              }
+            />
+          </div>
+
+          {/* Expiry Date */}
+          <div>
+            <label>Expiry Date</label>
+            <input
+              type="date"
+              className="input"
+              value={doc.expiryDate}
+              onChange={e =>
+                updateDocument(index, "expiryDate", e.target.value)
+              }
+            />
+          </div>
+
+          {/* REMOVE */}
+          {formData.documents.length > 1 && (
+            <button
+              onClick={() => removeDocument(index)}
+              className="absolute top-2 right-2 text-red-600 text-sm"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+)}
               {/* STEP 4 – REVIEW */}
-              {step === 4 && (
+              {step === 5 && (
                 <section className="space-y-6">
                   <h3 className="font-semibold text-lg">Review & Submit</h3>
 
@@ -591,33 +708,33 @@ const Properties = () => {
                 </section>
               )}
 
-              {/* ACTIONS */}
-              <div className="flex justify-between pt-6 border-t">
-                {step > 1 && (
-                  <button
-                    onClick={() => setStep(step - 1)}
-                    className="border px-4 py-2 rounded"
-                  >
-                    Back
-                  </button>
-                )}
+             {/* ACTIONS */}
+<div className="flex justify-between pt-6 border-t">
+  {step > 1 && (
+    <button
+      onClick={() => setStep(step - 1)}
+      className="border px-4 py-2 rounded"
+    >
+      Back
+    </button>
+  )}
 
-                {step < 4 ? (
-                  <button
-                    onClick={nextStep}
-                    className="bg-[#9c4a1a] text-white px-6 py-2 rounded"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    onClick={submit}
-                    className="bg-green-600 text-white px-6 py-2 rounded"
-                  >
-                    {isEdit ? "Update Property" : "Submit Property"}
-                  </button>
-                )}
-              </div>
+  {step < 5 ? (
+    <button
+      onClick={nextStep}
+      className="bg-[#9c4a1a] text-white px-6 py-2 rounded"
+    >
+      Next
+    </button>
+  ) : (
+    <button
+      onClick={submit}
+      className="bg-green-600 text-white px-6 py-2 rounded"
+    >
+      {isEdit ? "Update Property" : "Submit Property"}
+    </button>
+  )}
+</div>
 
             </div>
           </div>

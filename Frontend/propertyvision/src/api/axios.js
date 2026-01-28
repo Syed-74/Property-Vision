@@ -85,23 +85,71 @@
 
 
 
+// import axios from "axios";
+
+// /* =========================
+//    AXIOS INSTANCE
+// ========================= */
+// const api = axios.create({
+//   baseURL: "http://localhost:5000", // ✅ ROOT API (IMPORTANT)
+//   withCredentials: true,            // ✅ supports cookies if needed
+// });
+
+// /* =========================
+//    REQUEST INTERCEPTOR
+// ========================= */
+// api.interceptors.request.use(
+//   (config) => {
+//     // ✅ Token from localStorage
+//     const token = localStorage.getItem("token");
+
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
+
+// /* =========================
+//    RESPONSE INTERCEPTOR
+// ========================= */
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     // ✅ Global error handling (optional)
+//     if (error.response?.status === 401) {
+//       console.warn("Unauthorized – token expired or invalid");
+
+//       // OPTIONAL AUTO LOGOUT (keep commented)
+//       // localStorage.removeItem("token");
+//       // sessionStorage.removeItem("token");
+//       // window.location.href = "/login";
+//     }
+
+//     return Promise.reject(error);
+//   }
+// );
+
+// export default api;
+
+
+
+
+
 import axios from "axios";
 
-/* =========================
-   AXIOS INSTANCE
-========================= */
 const api = axios.create({
-  baseURL: "http://localhost:5000", // ✅ ROOT API (IMPORTANT)
-  withCredentials: true,            // ✅ supports cookies if needed
+  baseURL: "http://localhost:5000",
+  withCredentials: true,
 });
 
-/* =========================
-   REQUEST INTERCEPTOR
-========================= */
 api.interceptors.request.use(
   (config) => {
-    // ✅ Token from localStorage
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token"); // ✅ FIX
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -110,26 +158,6 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
-);
-
-/* =========================
-   RESPONSE INTERCEPTOR
-========================= */
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // ✅ Global error handling (optional)
-    if (error.response?.status === 401) {
-      console.warn("Unauthorized – token expired or invalid");
-
-      // OPTIONAL AUTO LOGOUT (keep commented)
-      // localStorage.removeItem("token");
-      // sessionStorage.removeItem("token");
-      // window.location.href = "/login";
-    }
-
-    return Promise.reject(error);
-  }
 );
 
 export default api;

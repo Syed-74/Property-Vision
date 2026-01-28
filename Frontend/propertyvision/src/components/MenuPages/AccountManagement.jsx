@@ -17,45 +17,49 @@ const AccountManagement = () => {
   const [form, setForm] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchAdmins = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get("/admins");
-        if (isMounted) setAdmins(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    fetchAdmins();
-    return () => (isMounted = false);
-  }, []);
-
+  /* ================= FETCH ADMINS ================= */
   const fetchAdmins = async () => {
-    const res = await api.get("/admins");
-    setAdmins(res.data);
+    try {
+      setLoading(true);
+      const res = await api.get("/auth/v1/admin/admins");
+      setAdmins(res.data);
+    } catch (err) {
+      console.error("Fetch admins failed", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (editId) {
-      await api.put(`/admin/${editId}`, form);
-    } else {
-      await api.post("/register", form);
+    const payload = { ...form };
+    if (editId && !payload.password) {
+      delete payload.password; // ✅ don't update password if empty
     }
 
-    setOpen(false);
-    setEditId(null);
-    setForm(initialFormState);
-    fetchAdmins();
+    try {
+      if (editId) {
+        await api.put(`/auth/v1/admin/admin/${editId}`, payload);
+      } else {
+        await api.post("/auth/v1/admin/register", payload);
+      }
+
+      setOpen(false);
+      setEditId(null);
+      setForm(initialFormState);
+      fetchAdmins();
+    } catch (err) {
+      console.error("Submit failed", err);
+    }
   };
 
+  /* ================= EDIT ================= */
   const handleEdit = (admin) => {
     setEditId(admin._id);
     setForm({
@@ -68,17 +72,15 @@ const AccountManagement = () => {
     setOpen(true);
   };
 
+  /* ================= DELETE ================= */
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this account?")) return;
-    await api.delete(`/admin/${id}`);
-    fetchAdmins();
-  };
-
-  // 🔹 UI-only validation color
-  const getInputBorder = (key) => {
-    if (key === "address") return "border-l-gray-300";
-    if (!form[key]) return "border-l-red-500";
-    return "border-l-green-500";
+    if (!window.confirm("Delete this account?")) return;
+    try {
+      await api.delete(`/auth/v1/admin/admin/${id}`);
+      fetchAdmins();
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
   };
 
   return (
@@ -88,105 +90,128 @@ const AccountManagement = () => {
         <h1 className="text-xl font-semibold text-gray-800">
           Account Management
         </h1>
+
         <button
           onClick={() => {
             setForm(initialFormState);
             setEditId(null);
             setOpen(true);
           }}
-          className="bg-[#9c4a1a] hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          className="bg-[#9c4a1a] hover:bg-[#7f3c14] text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
         >
           <Plus size={18} /> Create Account
         </button>
       </div>
 
-      {/* TABLE CARD */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-x-auto">
+      {/* RESPONSIVE LIST */}
+      <div className="bg-white rounded-xl border shadow-sm">
         {loading ? (
           <p className="p-6 text-center text-gray-500">Loading...</p>
+        ) : admins.length === 0 ? (
+          <p className="p-6 text-center text-gray-500">No accounts found</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-100 text-gray-600">
-              <tr>
-                <th className="p-4 text-left">Username</th>
-                <th className="p-4 text-left">Email</th>
-                <th className="p-4 text-left">Mobile</th>
-                <th className="p-4 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {admins.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="p-6 text-center text-gray-500">
-                    No accounts found
-                  </td>
-                </tr>
-              ) : (
-                admins.map((admin) => (
-                  <tr
-                    key={admin._id}
-                    className="border-t hover:bg-gray-50 transition"
+          <div className="divide-y">
+            {admins.map((admin) => (
+              <div
+                key={admin._id}
+                className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              >
+                <div>
+                  <p className="font-medium text-gray-800">
+                    {admin.username}
+                  </p>
+                  <p className="text-sm text-gray-500">{admin.email}</p>
+                  <p className="text-sm text-gray-500">
+                    {admin.mobileNumber}
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => handleEdit(admin)}
+                    className="text-blue-600 hover:text-blue-800"
                   >
-                    <td className="p-4">{admin.username}</td>
-                    <td className="p-4">{admin.email}</td>
-                    <td className="p-4">{admin.mobileNumber}</td>
-                    <td className="p-4 flex gap-4">
-                      <button
-                        onClick={() => handleEdit(admin)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(admin._id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                    <Edit size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(admin._id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
       {/* MODAL */}
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-3">
-          <div className="bg-white w-full max-w-lg rounded-xl shadow-lg relative">
+          <div className="bg-white w-full max-w-lg rounded-xl shadow-lg">
             <div className="flex justify-between items-center border-b px-6 py-4">
-              <h2 className="font-semibold text-gray-800">
+              <h2 className="font-semibold">
                 {editId ? "Update Account" : "Create Account"}
               </h2>
               <button onClick={() => setOpen(false)}>
-                <X className="text-gray-500" />
+                <X />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {Object.keys(form).map((key) => (
-                <div key={key}>
-                  <input
-                    type={key === "password" ? "password" : "text"}
-                    placeholder={key}
-                    value={form[key]}
-                    required={key !== "address"}
-                    onChange={(e) =>
-                      setForm({ ...form, [key]: e.target.value })
-                    }
-                    className={`w-full px-3 py-2 border border-l-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${getInputBorder(
-                      key
-                    )}`}
-                  />
-                </div>
-              ))}
+              <input
+                placeholder="Username"
+                value={form.username}
+                onChange={(e) =>
+                  setForm({ ...form, username: e.target.value })
+                }
+                required
+                className="w-full input"
+              />
 
-              <button
-                type="submit"
-                className="w-full bg-[#9c4a1a] hover:bg-indigo-700 text-white py-2 rounded-lg font-medium"
-              >
+              <input
+                type="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={(e) =>
+                  setForm({ ...form, email: e.target.value })
+                }
+                required
+                className="w-full input"
+              />
+
+              <input
+                type="password"
+                placeholder={editId ? "New password (optional)" : "Password"}
+                value={form.password}
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
+                required={!editId}
+                className="w-full input"
+              />
+
+              <input
+                placeholder="Mobile Number"
+                value={form.mobileNumber}
+                onChange={(e) =>
+                  setForm({ ...form, mobileNumber: e.target.value })
+                }
+                required
+                className="w-full input"
+              />
+
+              <textarea
+                placeholder="Address"
+                value={form.address}
+                onChange={(e) =>
+                  setForm({ ...form, address: e.target.value })
+                }
+                className="w-full input"
+              />
+
+              <button className="w-full bg-[#9c4a1a] text-white py-2 rounded-lg">
                 {editId ? "Update Account" : "Create Account"}
               </button>
             </form>

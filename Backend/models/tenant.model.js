@@ -29,8 +29,11 @@ const tenantSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Unit",
       required: true,
-      unique: true, // ❗ One tenant per unit
     },
+
+    aadhaarCard: String,
+    panCard: String,
+    bondPaper: String,
 
     rentAmount: { type: Number, required: true },
     maintenanceAmount: { type: Number, default: 0 },
@@ -46,7 +49,7 @@ const tenantSchema = new mongoose.Schema(
 
     isDeleted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Tenant", tenantSchema);
