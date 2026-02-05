@@ -74,6 +74,10 @@ exports.getAllProperties = async (req, res) => {
     if (req.query.city) {
       filters['location.city'] = req.query.city;
     }
+    if (req.query.country) {
+      // Case-insensitive match for country to handle variations
+      filters['location.country'] = { $regex: new RegExp(`^${req.query.country}$`, 'i') };
+    }
 
     const properties = await PropertiesManagement.find(filters)
       .sort({ createdAt: -1 });

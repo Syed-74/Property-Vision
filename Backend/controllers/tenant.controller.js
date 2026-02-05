@@ -138,3 +138,28 @@ exports.deleteRent = async (req, res) => {
   await Rent.findByIdAndDelete(req.params.rentId);
   res.json({ success: true });
 };
+
+/* DOWNLOAD RECEIPT */
+const { generateReceiptPDF } = require("../utils/pdfGenerator");
+exports.downloadRentReceipt = async (req, res) => {
+  try {
+    const rent = await Rent.findById(req.params.rentId);
+    if (!rent) return res.status(404).json({ message: "Rent record not found" });
+
+    // Ensure payment is Paid
+    if (rent.paymentStatus !== "Paid") {
+      return res.status(400).json({ message: "Receipt available only for Paid records" });
+    }
+
+    const tenant = await Tenant.findById(rent.tenantId)
+      .populate("unitId", "unitNumber");
+
+    if (!tenant) return res.status(404).json({ message: "Tenant not found" });
+
+    generateReceiptPDF(rent, tenant, res);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error generating receipt" });
+  }
+};

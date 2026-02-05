@@ -4,7 +4,8 @@ const controller = require("../controllers/tenant.controller");
 const upload = require("../middlewares/uploadTenant");
 
 
-router.post("/", controller.createTenant);
+
+// router.post("/", controller.createTenant); // Removed duplicate without upload middleware
 router.get("/", controller.getAllTenants);
 router.delete("/:id", controller.deleteTenant);
 
@@ -14,6 +15,7 @@ router.get("/:id", controller.getTenantById);
 
 router.put("/rents/:rentId", controller.updateRent);
 router.delete("/rents/:rentId", controller.deleteRent);
+router.get("/rents/:rentId/receipt", controller.downloadRentReceipt); // New Route for PDF
 
 router.post("/", upload.fields([
     { name: "aadhaarCard", maxCount: 1 },
