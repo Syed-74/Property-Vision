@@ -9,6 +9,7 @@ const floorRoutes = require("./routes/floor.routes");
 const unitRoutes = require("./routes/unit.routes");
 const tenantRoutes = require("./routes/tenant.routes");
 const paymentRoutes = require("./routes/payment.routes");
+const laborRoutes = require("./routes/labor.routes");
 
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.use('/api/floors', floorRoutes);
 app.use("/api/units", unitRoutes);
 app.use("/api/tenants", tenantRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/labors", laborRoutes);
 
 
 const PORT = process.env.PORT || 5000;

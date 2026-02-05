@@ -19,6 +19,10 @@ const initialUnit = {
   bathrooms: "",
   balconies: "",
 
+  squareFeet: "",
+  squareMeters: "",
+  squareRate: "",
+
   rentAmount: "",
   securityDeposit: "",
   maintenanceCharge: "",
@@ -146,6 +150,41 @@ const Units = () => {
     setOpen(true);
   };
 
+  const SQM_TO_SQFT = 10.7639;
+const SQFT_TO_SQM = 0.092903;
+
+const handleSquareFeetChange = (value) => {
+  if (value === "") {
+    setForm(prev => ({ ...prev, squareFeet: "", squareMeters: "" }));
+    return;
+  }
+
+  const sqft = parseFloat(value);
+  const sqm = (sqft * SQFT_TO_SQM).toFixed(2);
+
+  setForm(prev => ({
+    ...prev,
+    squareFeet: value,
+    squareMeters: sqm,
+  }));
+};
+
+const handleSquareMetersChange = (value) => {
+  if (value === "") {
+    setForm(prev => ({ ...prev, squareFeet: "", squareMeters: "" }));
+    return;
+  }
+
+  const sqm = parseFloat(value);
+  const sqft = (sqm * SQM_TO_SQFT).toFixed(2);
+
+  setForm(prev => ({
+    ...prev,
+    squareMeters: value,
+    squareFeet: sqft,
+  }));
+};
+
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-semibold mb-6">Flats / Units Management</h1>
@@ -193,11 +232,11 @@ const Units = () => {
       </div>
 
       {/* UNITS GRID */}
-     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-  {units.map((u) => (
-    <div
-      key={u._id}
-      className="
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        {units.map((u) => (
+          <div
+            key={u._id}
+            className="
         group relative bg-white rounded-2xl
         border border-gray-100
         shadow-sm hover:shadow-2xl
@@ -205,89 +244,91 @@ const Units = () => {
         flex flex-col justify-between
         overflow-hidden
       "
-    >
-      {/* TOP ACCENT */}
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#9c4a1a] to-orange-400" />
+          >
+            {/* TOP ACCENT */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#9c4a1a] to-orange-400" />
 
-      {/* HEADER */}
-      <div className="p-5 space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 leading-tight">
-              Unit {u.unitNumber}
-            </h3>
-            <p className="text-sm text-gray-500">
-              {u.floorId?.floorName || `Floor ${u.floorId?.floorNumber}`}
-            </p>
-          </div>
+            {/* HEADER */}
+            <div className="p-5 space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 leading-tight">
+                    Unit {u.unitNumber}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {u.floorId?.floorName || `Floor ${u.floorId?.floorNumber}`}
+                  </p>
+                </div>
 
-          {/* STATUS */}
-          <span
-            className={`
+                {/* STATUS */}
+                <span
+                  className={`
               text-xs font-semibold px-3 py-1 rounded-full
               ${
                 u.availabilityStatus === "Available"
                   ? "bg-green-50 text-green-700 ring-1 ring-green-200"
                   : u.availabilityStatus === "Occupied"
-                  ? "bg-red-50 text-red-700 ring-1 ring-red-200"
-                  : "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200"
+                    ? "bg-red-50 text-red-700 ring-1 ring-red-200"
+                    : "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200"
               }
             `}
-          >
-            {u.availabilityStatus}
-          </span>
-        </div>
+                >
+                  {u.availabilityStatus}
+                </span>
+              </div>
 
-        {/* RENT */}
-        <div className="pt-2">
-          <p className="text-xs uppercase tracking-wide text-gray-400">
-            Monthly Rent
-          </p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
-            ₹{u.rentAmount || 0}
-            <span className="text-sm font-medium text-gray-500"> / month</span>
-          </p>
-        </div>
-      </div>
+              {/* RENT */}
+              <div className="pt-2">
+                <p className="text-xs uppercase tracking-wide text-gray-400">
+                  Monthly Rent
+                </p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">
+                  ₹{u.rentAmount || 0}
+                  <span className="text-sm font-medium text-gray-500">
+                    {" "}
+                    / month
+                  </span>
+                </p>
+              </div>
+            </div>
 
-      {/* ACTIONS */}
-      <div
-        className="
+            {/* ACTIONS */}
+            <div
+              className="
           px-5 py-4 border-t
           bg-gray-50
           flex items-center justify-end gap-3
         "
-      >
-        <button
-          onClick={() => editUnit(u)}
-          className="
+            >
+              <button
+                onClick={() => editUnit(u)}
+                className="
             px-4 py-2 rounded-lg text-sm font-medium
             text-[#9c4a1a]
             border border-[#9c4a1a]/20
             hover:bg-[#9c4a1a]/10
             transition
           "
-        >
-          Edit
-        </button>
+              >
+                Edit
+              </button>
 
-        <button
-          onClick={() => deleteUnit(u._id)}
-          className="
+              <button
+                onClick={() => deleteUnit(u._id)}
+                className="
             px-4 py-2 rounded-lg text-sm font-medium
             text-red-600
             border border-red-200
             hover:bg-red-50
             transition
           "
-        >
-          Delete
-        </button>
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
-
 
       {/* MODAL */}
       {open && (
@@ -330,6 +371,8 @@ const Units = () => {
                   </select>
                 </div>
               </section>
+
+              
 
               {/* AREA & ROOMS */}
               <section>
@@ -386,6 +429,67 @@ const Units = () => {
                   />
                 </div>
               </section>
+
+              <section>
+  <h3 className="font-semibold mb-4">Unit Area</h3>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+    {/* Square Feet */}
+    <div>
+      <label className="block text-xs text-gray-500 mb-1">
+        Square Feet (sq ft)
+      </label>
+      <input
+        type="number"
+        className="input w-full"
+        placeholder="e.g. 1200"
+        value={form.squareFeet}
+        onChange={(e) => handleSquareFeetChange(e.target.value)}
+      />
+    </div>
+
+    {/* Square Meters */}
+    <div>
+      <label className="block text-xs text-gray-500 mb-1">
+        Square Meters (m²)
+      </label>
+      <input
+        type="number"
+        className="input w-full"
+        placeholder="e.g. 111.48"
+        value={form.squareMeters}
+        onChange={(e) => handleSquareMetersChange(e.target.value)}
+      />
+    </div>
+
+    {/* Square Rate */}
+    <div>
+      <label className="block text-xs text-gray-500 mb-1">
+        Rate per Sq Ft
+      </label>
+      <input
+        type="number"
+        className="input w-full"
+        placeholder="e.g. 80"
+        value={form.squareRate}
+        onChange={(e) =>
+          setForm({ ...form, squareRate: e.target.value })
+        }
+      />
+    </div>
+
+  </div>
+
+  {/* Auto calculation preview */}
+  {form.squareFeet && form.squareRate && (
+    <p className="mt-3 text-sm text-gray-600">
+      Estimated Unit Value: ₹
+      {(form.squareFeet * form.squareRate).toLocaleString()}
+    </p>
+  )}
+</section>
+
 
               {/* RENT */}
               <section>

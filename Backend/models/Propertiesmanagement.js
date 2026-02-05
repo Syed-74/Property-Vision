@@ -72,15 +72,30 @@ const propertiesManagementSchema = new mongoose.Schema(
        2. Location Details
     ========================== */
     location: {
-      country: { type: String, required: true },
+      country: {
+        type: String,
+        enum: [
+          "India",
+          "USA",
+          "UK",
+          "Canada",
+          "Australia",
+          "Dubai",
+          "Singapore",
+          "Kuwait",
+          "saudi arabia",
+          "Qatar",
+          "Bahrain",
+          "Other",
+        ],
+        required: true,
+      },
       state: { type: String, required: true },
       city: { type: String, required: true },
       area: { type: String },
       address: { type: String, required: true },
       landmark: { type: String },
       pincode: { type: String },
-      // latitude: { type: Number },
-      // longitude: { type: Number },
     },
 
     /* =========================
@@ -208,7 +223,7 @@ const propertiesManagementSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // adds createdAt & updatedAt automatically
-  }
+  },
 );
 
 module.exports =

@@ -31,9 +31,7 @@ export default function TenantDetails() {
       const tenantRes = await axios.get(`${API.tenants}/${tenantId}`);
       setTenant(tenantRes.data.data);
 
-      const rentRes = await axios.get(
-        `${API.tenants}/${tenantId}/rents`
-      );
+      const rentRes = await axios.get(`${API.tenants}/${tenantId}/rents`);
       setRents(rentRes.data.data || []);
     } catch (err) {
       console.error(err);
@@ -60,46 +58,37 @@ export default function TenantDetails() {
   //   }
   // };
   const saveMonth = async () => {
-  if (!rentForm.month) return;
+    if (!rentForm.month) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const payload = {
-      ...rentForm,
-      rentAmount: Number(
-        String(rentForm.rentAmount).replace(/[^\d]/g, "")
-      ),
-      maintenanceAmount: Number(
-        String(rentForm.maintenanceAmount).replace(/[^\d]/g, "")
-      ),
-    };
+      const payload = {
+        ...rentForm,
+        rentAmount: Number(String(rentForm.rentAmount).replace(/[^\d]/g, "")),
+        maintenanceAmount: Number(
+          String(rentForm.maintenanceAmount).replace(/[^\d]/g, ""),
+        ),
+      };
 
-    await axios.post(
-      `${API.tenants}/${tenantId}/rents`,
-      payload
-    );
+      await axios.post(`${API.tenants}/${tenantId}/rents`, payload);
 
-    setRentForm(initialRent);
-    loadData();
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setRentForm(initialRent);
+      loadData();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /* ================= UPDATE RENT ================= */
   const updateRent = async () => {
-    await axios.put(
-      `${API.tenants}/rents/${editingRent._id}`,
-      editingRent
-    );
+    await axios.put(`${API.tenants}/rents/${editingRent._id}`, editingRent);
     setEditingRent(null);
     loadData();
   };
 
   /* ================= DELETE RENT ================= */
-  const deleteRent = async id => {
+  const deleteRent = async (id) => {
     if (!window.confirm("Delete this rent record?")) return;
     await axios.delete(`${API.tenants}/rents/${id}`);
     loadData();
@@ -115,47 +104,98 @@ export default function TenantDetails() {
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen space-y-6">
-
       {/* ================= TENANT SUMMARY ================= */}
       <div className="bg-white rounded-2xl shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">
-          Tenant & Flat Details
-        </h2>
+        <h2 className="text-xl font-semibold mb-4">Tenant & Flat Details</h2>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-          <p><b>Tenant:</b> {tenant.fullName}</p>
-          <p><b>Phone:</b> {tenant.phone || "—"}</p>
-          <p><b>Property:</b> {tenant.propertyId?.propertyName}</p>
-          <p><b>Floor:</b> {tenant.floorId?.floorName || `Floor ${tenant.floorId?.floorNumber}`}</p>
-          <p><b>Flat:</b> {tenant.unitId?.unitNumber}</p>
-          <p><b>Base Rent:</b> ₹{tenant.rentAmount}</p>
-          <p><b>Maintenance:</b> ₹{tenant.maintenanceAmount}</p>
+          <p>
+            <b>Tenant:</b> {tenant.fullName}
+          </p>
+          <p>
+            <b>Phone:</b> {tenant.phone || "—"}
+          </p>
+          <p>
+            <b>Property:</b> {tenant.propertyId?.propertyName}
+          </p>
+          <p>
+            <b>Floor:</b>{" "}
+            {tenant.floorId?.floorName ||
+              `Floor ${tenant.floorId?.floorNumber}`}
+          </p>
+          <p>
+            <b>Flat:</b> {tenant.unitId?.unitNumber}
+          </p>
+          <p>
+            <b>Base Rent:</b> ₹{tenant.rentAmount}
+          </p>
+          <p>
+            <b>Maintenance:</b> ₹{tenant.maintenanceAmount}
+          </p>
           <p>
             <b>Status:</b>{" "}
-            <span className="text-green-600 font-medium">
-              {tenant.status}
-            </span>
+            <span className="text-green-600 font-medium">{tenant.status}</span>
           </p>
         </div>
       </div>
 
       {/* ================= ADD MONTH ================= */}
       <div className="bg-white rounded-2xl shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">
-          Add Monthly Rent
-        </h2>
+        <h2 className="text-lg font-semibold mb-4">Add Monthly Rent</h2>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <input
             type="date"
             className="input"
             value={rentForm.month}
-            onChange={e =>
+            onChange={(e) =>
               setRentForm({ ...rentForm, month: e.target.value })
             }
           />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:col-span-2">
+            {/* Rent Dropdown */}
+            <div className="w-full">
+              <label className="label">Rent Amount</label>
+              <select
+                className="input w-full"
+                value={rentForm.rentAmount}
+                onChange={(e) =>
+                  setRentForm({ ...rentForm, rentAmount: e.target.value })
+                }
+              >
+                <option value="">Select Rent</option>
+                {tenant?.rentAmount && (
+                  <option value={tenant.rentAmount}>
+                    ₹{tenant.rentAmount}
+                  </option>
+                )}
+              </select>
+            </div>
 
-          <input
+            {/* Maintenance Dropdown */}
+            <div className="w-full">
+              <label className="label">Maintenance Amount</label>
+              <select
+                className="input w-full"
+                value={rentForm.maintenanceAmount}
+                onChange={(e) =>
+                  setRentForm({
+                    ...rentForm,
+                    maintenanceAmount: e.target.value,
+                  })
+                }
+              >
+                <option value="">Select Maintenance</option>
+                {tenant?.maintenanceAmount && (
+                  <option value={tenant.maintenanceAmount}>
+                    ₹{tenant.maintenanceAmount}
+                  </option>
+                )}
+              </select>
+            </div>
+          </div>
+
+          {/* <input
             type="String"
             className="input"
             placeholder="Rent Amount"
@@ -176,13 +216,13 @@ export default function TenantDetails() {
                 maintenanceAmount: e.target.value,
               })
             }
-          />
+          /> */}
 
           <select
             type
             className="input"
             value={rentForm.paymentStatus}
-            onChange={e =>
+            onChange={(e) =>
               setRentForm({
                 ...rentForm,
                 paymentStatus: e.target.value,
@@ -208,9 +248,7 @@ export default function TenantDetails() {
 
       {/* ================= RENT HISTORY ================= */}
       <div className="bg-white rounded-2xl shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">
-          Rent History
-        </h2>
+        <h2 className="text-lg font-semibold mb-4">Rent History</h2>
 
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm border rounded-lg overflow-hidden">
@@ -232,16 +270,14 @@ export default function TenantDetails() {
                   </td>
                 </tr>
               ) : (
-                rents.map(r => (
+                rents.map((r) => (
                   <tr key={r._id} className="hover:bg-gray-50">
                     <td className="p-2 border">{r.month}</td>
                     <td className="p-2 border">₹{r.rentAmount}</td>
                     <td className="p-2 border">₹{r.maintenanceAmount}</td>
                     <td className="p-2 border">{r.paymentStatus}</td>
                     <td className="p-2 border">
-                      {r.paidOn
-                        ? new Date(r.paidOn).toLocaleDateString()
-                        : "—"}
+                      {r.paidOn ? new Date(r.paidOn).toLocaleDateString() : "—"}
                     </td>
                     <td className="p-2 border">
                       <div className="flex gap-3 justify-center">
@@ -276,7 +312,7 @@ export default function TenantDetails() {
             <input
               className="input"
               value={editingRent.rentAmount}
-              onChange={e =>
+              onChange={(e) =>
                 setEditingRent({
                   ...editingRent,
                   rentAmount: e.target.value,
@@ -287,7 +323,7 @@ export default function TenantDetails() {
             <input
               className="input"
               value={editingRent.maintenanceAmount}
-              onChange={e =>
+              onChange={(e) =>
                 setEditingRent({
                   ...editingRent,
                   maintenanceAmount: e.target.value,
@@ -298,7 +334,7 @@ export default function TenantDetails() {
             <select
               className="input"
               value={editingRent.paymentStatus}
-              onChange={e =>
+              onChange={(e) =>
                 setEditingRent({
                   ...editingRent,
                   paymentStatus: e.target.value,
@@ -327,7 +363,6 @@ export default function TenantDetails() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

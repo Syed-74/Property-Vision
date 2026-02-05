@@ -10,12 +10,13 @@ import Properties from "./components/MenuPages/Properties";
 import Tenants from "./components/MenuPages/Tenants";
 import Units from "./components/MenuPages/Units";
 import Payments from "./components/MenuPages/Payments";
-import Reports from "./components/MenuPages/Reports";
+// import Reports from "./components/MenuPages/Reports";
 import Settings from "./components/MenuPages/Settings";
 import AccountManagement from "./components/MenuPages/AccountManagement";
 import Floor from "./components/MenuPages/Floor";
 import TenantDetails from "./components/MenuPages/TenantDetails";
 import ResetPassword from "./components/AuthAdmin-Folder/ForgotPasswordModal";
+import Labor from "./components/MenuPages/Labor";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path="tenants/:tenantId" element={<TenantDetails />} />
         <Route path="payments" element={<Payments />} />
         {/* <Route path="reports" element={<Reports />} /> */}
+        <Route path="labor" element={<Labor />} />
         <Route path="settings" element={<Settings />} />
         <Route path="accounts-management" element={<AccountManagement />} />
         

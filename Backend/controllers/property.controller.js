@@ -1,5 +1,6 @@
 const PropertiesManagement = require('../models/Propertiesmanagement');
 const generatePropertyId = require('../utils/generatePropertyId');
+const mongoose = require('mongoose');
 /* =========================
    CREATE PROPERTY
 ========================= */
@@ -132,13 +133,44 @@ exports.updateProperty = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // ✅ Validate Mongo ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: 'Invalid ID' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid property ID" });
     }
 
-    const updatedData = { ...req.body };
-    delete updatedData.propertyId;
+    // ✅ Build update object safely
+    const updatedData = {
+      propertyName: req.body.propertyName,
+      propertyType: req.body.propertyType,
+      ownershipType: req.body.ownershipType,
+      description: req.body.description,
 
+      location: req.body.location
+        ? JSON.parse(req.body.location)
+        : undefined,
+
+      physicalDetails: req.body.physicalDetails
+        ? JSON.parse(req.body.physicalDetails)
+        : undefined,
+
+      financialDetails: req.body.financialDetails
+        ? JSON.parse(req.body.financialDetails)
+        : undefined,
+    };
+
+    // ✅ Update image only if new file uploaded
+    if (req.file) {
+      updatedData.propertyimgUrl = `/uploads/${req.file.filename}`;
+    }
+
+    // ✅ Remove undefined fields (prevents overwriting existing data)
+    Object.keys(updatedData).forEach(
+      key => updatedData[key] === undefined && delete updatedData[key]
+    );
+
+    // ✅ Soft-delete safe update
     const property = await PropertiesManagement.findOneAndUpdate(
       { _id: id, isDeleted: false },
       updatedData,
@@ -146,16 +178,23 @@ exports.updateProperty = async (req, res) => {
     );
 
     if (!property) {
-      return res.status(404).json({ success: false, message: 'Property not found' });
+      return res.status(404).json({
+        success: false,
+        message: "Property not found or deleted",
+      });
     }
 
     res.json({
       success: true,
-      message: 'Property updated successfully',
+      message: "Property updated successfully",
       data: property,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("UPDATE PROPERTY ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 

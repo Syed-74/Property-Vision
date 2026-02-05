@@ -58,12 +58,13 @@ const AdminLayout = () => {
       path: "payments",
       requiresAdmin: true,
     },
-    // {
-    //   name: "Reports",
-    //   icon: BarChart3,
-    //   path: "reports",
-    //   requiresAdmin: true,
-    // },
+    {
+      name: "Labor Registration",
+      icon: Users,
+      path: "labor",
+      requiresAdmin: true,
+    },
+
     {
       name: "Settings",
       icon: Settings,
@@ -97,9 +98,7 @@ const AdminLayout = () => {
       >
         {/* Logo */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h1 className="text-xl font-bold text-[#9c4a1a]">
-            Super Admin
-          </h1>
+          <h1 className="text-xl font-bold text-[#9c4a1a]">Super Admin</h1>
           <button
             className="md:hidden p-1 rounded hover:bg-gray-100"
             onClick={() => setOpen(false)}
@@ -111,8 +110,8 @@ const AdminLayout = () => {
         {/* Menu */}
         <nav className="p-4 space-y-1">
           {menu
-            .filter(item => item.requiresAdmin)
-            .map(item => (
+            .filter((item) => item.requiresAdmin)
+            .map((item) => (
               <NavLink
                 key={item.name}
                 to={item.path}
@@ -156,16 +155,16 @@ const AdminLayout = () => {
             <Menu />
           </button>
 
-          <h2 className="text-base sm:text-lg font-semibold">
-            Admin Panel
-          </h2>
+          <h2 className="text-base sm:text-lg font-semibold">Admin Panel</h2>
 
           <div className="flex items-center gap-3">
             <span className="hidden sm:block text-sm text-gray-600">
               {user?.role || "Admin"}
             </span>
-            <div className="h-9 w-9 rounded-full bg-[#9c4a1a] text-white
-              flex items-center justify-center font-semibold">
+            <div
+              className="h-9 w-9 rounded-full bg-[#9c4a1a] text-white
+              flex items-center justify-center font-semibold"
+            >
               {user?.name?.[0] || "A"}
             </div>
           </div>

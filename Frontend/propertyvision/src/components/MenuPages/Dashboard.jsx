@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+  BarChart, Bar, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
 
 const API = {
@@ -18,9 +11,18 @@ const API = {
   tenants: "http://localhost:5000/api/tenants",
 };
 
-const COLORS = ["#4f46e5", "#22c55e", "#f97316"];
+const COLORS = ["#4f46e5", "#22c55e"];
 
-const Dashboard = () => {
+const countries = [
+  "India","USA","UK","Canada","Australia",
+  "Dubai","Singapore","Kuwait",
+  "Saudi Arabia","Qatar","Bahrain","Other"
+];
+
+export default function Dashboard() {
+  const [country, setCountry] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [stats, setStats] = useState({
     properties: 0,
     units: 0,
@@ -36,136 +38,182 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [country]);
 
   const loadDashboard = async () => {
     try {
-      const propertyRes = await axios.get(API.properties);
+      setLoading(true);
+
+      /* PROPERTIES BY COUNTRY */
+      const propRes = await axios.get(API.properties, {
+        params: country ? { country } : {},
+      });
+
+      const properties = propRes.data.data || [];
+      const propertyIds = properties.map(p => String(p._id));
+
+      if (!propertyIds.length) {
+        clearDashboard();
+        setLoading(false);
+        return;
+      }
+
+      /* UNITS */
+      let units = [];
+      for (const id of propertyIds) {
+        const res = await axios.get(`${API.units}/property/${id}`);
+        units.push(...(res.data.data || []));
+      }
+
+      const occupied = units.filter(u => u.availabilityStatus === "Occupied").length;
+      const available = units.filter(u => u.availabilityStatus === "Available").length;
+
+      /* TENANTS */
       const tenantRes = await axios.get(API.tenants);
+      const tenants = tenantRes.data.data.filter(t =>
+        propertyIds.includes(String(t.propertyId))
+      );
 
-      const properties = propertyRes.data.data || [];
-      const tenants = tenantRes.data.data || [];
-
-      let allUnits = [];
+      /* RENT */
       let totalCollected = 0;
       let pendingAmount = 0;
       const monthlyRent = {};
 
-      // Load units property-wise
-      for (const p of properties) {
-        const unitRes = await axios.get(
-          `${API.units}/property/${p._id}`
-        );
-        allUnits = [...allUnits, ...(unitRes.data.data || [])];
-      }
-
-      // Rent calculation
       for (const t of tenants) {
-        const rentRes = await axios.get(
-          `${API.tenants}/${t._id}/rents`
-        );
-
+        const rentRes = await axios.get(`${API.tenants}/${t._id}/rents`);
         rentRes.data.data.forEach(r => {
-          const month = r.month;
-          monthlyRent[month] =
-            (monthlyRent[month] || 0) + r.totalAmount;
+          monthlyRent[r.month] =
+            (monthlyRent[r.month] || 0) + r.totalAmount;
 
-          if (r.paymentStatus === "Paid") {
-            totalCollected += r.totalAmount;
-          } else {
-            pendingAmount += r.totalAmount;
-          }
+          r.paymentStatus === "Paid"
+            ? totalCollected += r.totalAmount
+            : pendingAmount += r.totalAmount;
         });
       }
 
       setStats({
         properties: properties.length,
-        units: allUnits.length,
-        occupied: allUnits.filter(u => u.availabilityStatus === "Occupied").length,
-        available: allUnits.filter(u => u.availabilityStatus === "Available").length,
+        units: units.length,
+        occupied,
+        available,
         tenants: tenants.length,
         totalCollected,
         pendingAmount,
       });
 
       setRentChart(
-        Object.keys(monthlyRent).map(m => ({
-          month: m,
-          amount: monthlyRent[m],
+        Object.entries(monthlyRent).map(([month, amount]) => ({
+          month, amount
         }))
       );
 
       setUnitChart([
-        { name: "Occupied", value: allUnits.filter(u => u.availabilityStatus === "Occupied").length },
-        { name: "Available", value: allUnits.filter(u => u.availabilityStatus === "Available").length },
+        { name: "Occupied", value: occupied },
+        { name: "Available", value: available }
       ]);
 
+      setLoading(false);
     } catch (err) {
       console.error(err);
+      setLoading(false);
     }
+  };
+
+  const clearDashboard = () => {
+    setStats({
+      properties: 0,
+      units: 0,
+      occupied: 0,
+      available: 0,
+      tenants: 0,
+      totalCollected: 0,
+      pendingAmount: 0,
+    });
+    setRentChart([]);
+    setUnitChart([]);
   };
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen space-y-6">
 
-      {/* ================= KPIs ================= */}
+      {/* COUNTRY FILTER */}
+      <div className="flex justify-end">
+        <select
+          className="border rounded-lg px-3 py-2 w-full sm:w-64"
+          value={country}
+          onChange={e => setCountry(e.target.value)}
+        >
+          <option value="">All Countries</option>
+          {countries.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
-        <StatCard title="Properties" value={stats.properties} />
-        <StatCard title="Units" value={stats.units} />
-        <StatCard title="Occupied" value={stats.occupied} />
-        <StatCard title="Available" value={stats.available} />
-        <StatCard title="Tenants" value={stats.tenants} />
-        <StatCard title="Collected" value={`₹${stats.totalCollected}`} />
-        <StatCard title="Pending" value={`₹${stats.pendingAmount}`} />
+        <KPI label="Properties" value={stats.properties} />
+        <KPI label="Units" value={stats.units} />
+        <KPI label="Occupied" value={stats.occupied} />
+        <KPI label="Available" value={stats.available} />
+        <KPI label="Tenants" value={stats.tenants} />
+        <KPI label="Collected" value={`₹${stats.totalCollected}`} />
+        <KPI label="Pending" value={`₹${stats.pendingAmount}`} />
       </div>
 
-      {/* ================= CHARTS ================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {loading && (
+        <p className="text-center text-gray-500">Loading dashboard…</p>
+      )}
 
-        {/* Monthly Rent */}
-        <div className="bg-white rounded-2xl shadow p-6">
-          <h2 className="font-semibold mb-4">Monthly Rent Collection</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={rentChart}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="amount" fill="#4f46e5" />
-            </BarChart>
-          </ResponsiveContainer>
+      {!loading && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <ChartBox title="Monthly Rent">
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={rentChart}>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="amount" fill="#4f46e5" />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartBox>
+
+          <ChartBox title="Occupancy">
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie
+                  data={unitChart}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={95}
+                  label
+                >
+                  {unitChart.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartBox>
+
         </div>
-
-        {/* Unit Status */}
-        <div className="bg-white rounded-2xl shadow p-6">
-          <h2 className="font-semibold mb-4">Unit Occupancy</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={unitChart}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={110}
-                label
-              >
-                {unitChart.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-      </div>
+      )}
     </div>
   );
-};
+}
 
-const StatCard = ({ title, value }) => (
-  <div className="bg-white rounded-xl shadow p-4 text-center">
-    <p className="text-sm text-gray-500">{title}</p>
-    <p className="text-xl font-semibold mt-1">{value}</p>
+const KPI = ({ label, value }) => (
+  <div className="bg-white rounded-xl shadow p-3 text-center">
+    <p className="text-xs text-gray-500">{label}</p>
+    <p className="text-lg font-semibold">{value}</p>
   </div>
 );
 
-export default Dashboard;
+const ChartBox = ({ title, children }) => (
+  <div className="bg-white rounded-xl shadow p-4">
+    <h3 className="font-semibold mb-3">{title}</h3>
+    {children}
+  </div>
+);

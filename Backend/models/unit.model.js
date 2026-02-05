@@ -30,6 +30,20 @@ const unitSchema = new mongoose.Schema(
 
     builtUpArea: Number,
     carpetArea: Number,
+    squareFeet: {
+      type: Number,
+      required: true,
+    },
+
+    squareMeters: {
+      type: Number,
+      required: true,
+    },
+
+    squareRate: {
+      type: Number,
+      required: true,
+    },
 
     bedrooms: Number,
     bathrooms: Number,
@@ -61,7 +75,7 @@ const unitSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Unit", unitSchema);
